@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * 用户服务类，封装用户相关的业务逻辑
+ */
 @Service
 public class UserService {
 
@@ -24,14 +27,11 @@ public class UserService {
 
     // 创建用户（自动生成盐值并加密密码）
     public UserDto createUser(UserCreateRequest request) {
-        // 生成盐值
         String salt = PasswordUtil.generateSalt();
-        // 加密密码
         String hashedPassword = PasswordUtil.hashPassword(request.getPassword(), salt);
 
         User user = User.builder()
                 .userId(request.getUserId())
-                .userType(request.getUserType())
                 .userName(request.getUserName())
                 .userPassword(hashedPassword)
                 .saltValue(salt)
@@ -66,10 +66,8 @@ public class UserService {
     // 更新用户信息
     public Optional<UserDto> updateUser(String userId, UserCreateRequest request) {
         return userRepository.findById(userId).map(existingUser -> {
-            existingUser.setUserType(request.getUserType());
             existingUser.setUserName(request.getUserName());
 
-            // 如果传了新密码，则重新生成盐值并加密
             if (request.getPassword() != null && !request.getPassword().isEmpty()) {
                 String salt = PasswordUtil.generateSalt();
                 String hashedPassword = PasswordUtil.hashPassword(request.getPassword(), salt);

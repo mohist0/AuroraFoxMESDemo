@@ -18,9 +18,6 @@ CREATE TABLE users
     -- 用户编号，主键
     user_id         VARCHAR(50) PRIMARY KEY COMMENT '用户编号',
 
-    -- 用户类型
-    user_type       VARCHAR(50)  NOT NULL COMMENT '用户类型',
-
     -- 用户名
     user_name       VARCHAR(100) NOT NULL COMMENT '用户名',
 

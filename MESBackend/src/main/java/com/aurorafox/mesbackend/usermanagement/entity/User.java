@@ -28,12 +28,6 @@ public class User {
     private String userId;
 
     /**
-     * 用户类型
-     */
-    @Column(name = "user_type")
-    private String userType;
-
-    /**
      * 用户名
      */
     @Column(name = "user_name")

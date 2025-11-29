@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 用户控制器，提供用户相关的 REST API
+ */
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
