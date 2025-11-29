@@ -2,16 +2,13 @@ package com.aurorafox.mesbackend.usermanagement.dto;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDto {
+public class UserCreateRequest {
     private String userId;
     private String userType;
     private String userName;
-    private LocalDateTime lastLoginTime;
-    private LocalDateTime createTime;
+    private String password;  // 明文密码
 }
