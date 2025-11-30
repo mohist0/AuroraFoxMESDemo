@@ -1,4 +1,3 @@
-// language: java
 package com.aurorafox.mesbackend.security;
 
 import io.jsonwebtoken.*;
@@ -11,23 +10,21 @@ import java.security.Key;
 import java.util.Date;
 
 /**
- * JWT 工具类
- * 功能：
- * - 生成 JWT Token
- * - 解析 Token 获取用户名
- * - 验证 Token 是否有效
+ * JwtTokenProvider
+ * ----------------------------
+ * JWT 工具类：
+ *  - 生成 JWT Token
+ *  - 解析 Token 获取用户名
+ *  - 验证 Token 是否有效
  */
 @Component
 public class JwtTokenProvider {
 
-    /** 用于签名和校验的密钥 */
-    private final Key secretKey;
-
-    /** Token 有效期（毫秒） */
-    private final long validityInMilliseconds;
+    private final Key secretKey;                // 用于签名和校验的密钥
+    private final long validityInMilliseconds;  // Token 有效期（毫秒）
 
     /**
-     * 从配置文件注入 secret 和 expiration
+     * 构造函数：从配置文件注入 secret 和 expiration
      */
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
@@ -38,16 +35,18 @@ public class JwtTokenProvider {
 
     /**
      * 生成 JWT Token
+     * @param userDetails 用户信息
+     * @return JWT 字符串
      */
     public String generateToken(UserDetails userDetails) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .setSubject(userDetails.getUsername()) // 设置用户名
+                .setIssuedAt(now)                      // 签发时间
+                .setExpiration(expiryDate)             // 过期时间
+                .signWith(secretKey, SignatureAlgorithm.HS256) // 使用 HS256 算法签名
                 .compact();
     }
 

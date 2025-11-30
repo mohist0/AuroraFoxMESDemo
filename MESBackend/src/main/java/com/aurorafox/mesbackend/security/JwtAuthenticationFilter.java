@@ -1,5 +1,6 @@
 package com.aurorafox.mesbackend.security;
 
+import com.aurorafox.mesbackend.auth.service.AuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,24 +15,36 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * JWT 拦截过滤器
- * 作用：
- * 1. 拦截每个请求，检查是否携带 JWT Token。
- * 2. 验证 Token 是否有效。
- * 3. 如果有效，将用户信息放入 SecurityContext，供后续授权使用。
+ * JwtAuthenticationFilter
+ * ----------------------------
+ * JWT 拦截过滤器：
+ *  - 拦截每个请求，检查是否携带 JWT Token
+ *  - 验证 Token 是否有效
+ *  - 校验 Token 是否在黑名单中（退出登录后失效）
+ *  - 如果有效，将用户信息放入 SecurityContext，供后续授权使用
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final JwtTokenProvider jwtTokenProvider;          // JWT 工具类
+    private final CustomUserDetailsService customUserDetailsService; // 用户信息加载服务
+    private final AuthService authService;                    // 认证业务逻辑（含黑名单）
 
     public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
-                                   CustomUserDetailsService customUserDetailsService) {
+                                   CustomUserDetailsService customUserDetailsService,
+                                   AuthService authService) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.customUserDetailsService = customUserDetailsService;
+        this.authService = authService;
     }
 
+    /**
+     * 核心过滤逻辑
+     *
+     * @param request HTTP 请求
+     * @param response HTTP 响应
+     * @param filterChain 过滤器链
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -44,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = null;
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
+            token = authHeader.substring(7); // 去掉 "Bearer " 前缀
             username = jwtTokenProvider.getUsernameFromToken(token);
         }
 
@@ -52,16 +65,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
-            if (jwtTokenProvider.validateToken(token, userDetails)) {
+            // 校验 Token 有效性 + 黑名单检查
+            if (jwtTokenProvider.validateToken(token, userDetails)
+                    && !authService.isTokenBlacklisted(token)) {
+
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
+
+                // 设置请求详情（IP、Session 等）
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+                // 将认证信息放入 SecurityContext
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
+        // 继续执行过滤链
         filterChain.doFilter(request, response);
     }
 }

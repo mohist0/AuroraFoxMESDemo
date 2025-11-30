@@ -11,16 +11,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Spring Security 安全配置类
- * 作用：
- * 1. 定义安全过滤器链，配置哪些接口需要认证，哪些接口允许匿名访问。
- * 2. 注册 JWT 过滤器，保证请求携带的 Token 能被正确解析和验证。
- * 3. 提供密码加密器（BCrypt），用于用户密码的安全存储。
+ * SecurityConfig
+ * ----------------------------
+ * Spring Security 安全配置类：
+ *  - 定义安全过滤器链，配置哪些接口需要认证，哪些接口允许匿名访问
+ *  - 注册 JWT 过滤器，保证请求携带的 Token 能被正确解析和验证
+ *  - 提供密码加密器（BCrypt），用于用户密码的安全存储
  */
 @Configuration
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter; // JWT 过滤器
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
