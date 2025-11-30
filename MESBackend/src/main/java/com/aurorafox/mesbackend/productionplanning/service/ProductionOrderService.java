@@ -58,7 +58,7 @@ public class ProductionOrderService {
         order.setProductId(request.getProductId());
         order.setProductName(request.getProductName());
         order.setOrderQuantity(request.getOrderQuantity());
-        order.setOrderStatus(String.valueOf(OrderStatus.PENDING_SCHEDULE)); // 默认状态
+        order.setOrderStatus(OrderStatus.PENDING_SCHEDULE); // 默认状态
         order.setDeliveryDate(request.getDeliveryDate());
         order.setRemark(request.getRemark());
         repository.save(order);
@@ -91,7 +91,7 @@ public class ProductionOrderService {
                 .orderQuantity(order.getOrderQuantity())
                 .scheduledQuantity(order.getScheduledQuantity())
                 .completedQuantity(order.getCompletedQuantity())
-                .orderStatus(OrderStatus.valueOf(order.getOrderStatus()))
+                .orderStatus(order.getOrderStatus())
                 .deliveryDate(order.getDeliveryDate())
                 .plannedStartDate(order.getPlannedStartDate())
                 .plannedEndDate(order.getPlannedEndDate())
