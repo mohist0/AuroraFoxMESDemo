@@ -108,12 +108,13 @@ public class UserService {
 
     /**
      * 更新用户信息并更新角色绑定关系
-     * @param userId 用户编号
+     * @param userId 用户编号（来自路径参数）
      * @param request 用户更新请求体
      * @return 更新后的用户信息 DTO
      */
     public Optional<UserDto> updateUser(String userId, UserCreateRequest request) {
         return userRepository.findById(userId).map(existingUser -> {
+            // 不允许修改 userId，只能更新其他字段
             existingUser.setUserName(request.getUserName());
 
             // 如果传了新密码，则重新生成盐值并加密
@@ -132,7 +133,7 @@ public class UserService {
                 for (String roleId : request.getRoleIds()) {
                     UserRole userRole = UserRole.builder()
                             .urId(UUID.randomUUID().toString())
-                            .userId(updated.getUserId())
+                            .userId(updated.getUserId()) // 使用路径参数中的 userId
                             .roleId(roleId)
                             .createTime(LocalDateTime.now())
                             .build();
