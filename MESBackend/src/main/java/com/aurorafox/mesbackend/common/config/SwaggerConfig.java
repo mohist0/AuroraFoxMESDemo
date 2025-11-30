@@ -2,6 +2,8 @@ package com.aurorafox.mesbackend.common.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * 1. 启用 Springdoc OpenAPI（Swagger UI）功能，自动扫描项目中的 REST 接口。
  * 2. 在 Swagger UI 页面展示接口文档，方便前后端开发人员调试和对接。
  * 3. 定义全局的 API 信息（标题、版本、描述等）。
+ * 4. 配置 JWT 安全认证，支持在 Swagger UI 中输入 Token。
  * 访问路径：
  * - Swagger UI: http://localhost:8080/swagger-ui/index.html
  * - OpenAPI JSON: http://localhost:8080/v3/api-docs
@@ -19,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
     /**
-     * 定义 OpenAPI Bean，用于配置接口文档的基本信息
+     * 定义 OpenAPI Bean，用于配置接口文档的基本信息和安全认证
      *
      * @return OpenAPI 对象，包含标题、版本、描述等信息
      */
@@ -29,6 +32,15 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("MES Backend API")          // 文档标题
                         .version("1.0")                    // 文档版本
-                        .description("后端接口文档")); // 文档描述
+                        .description(" MES 后端接口文档")) // 文档描述
+                // 配置 JWT 安全认证
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("bearerAuth",
+                                new SecurityScheme()
+                                        .name("Authorization")
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")));
     }
 }

@@ -2,6 +2,7 @@ package com.aurorafox.mesbackend.usermanagement.dto;
 
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 用户信息返回 DTO
@@ -12,8 +13,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class UserDto {
-    private String userId;            // 用户编号
-    private String userName;          // 用户名
+    private String userId;               // 用户编号
+    private String userName;             // 用户名
     private LocalDateTime lastLoginTime; // 最近登录时间
     private LocalDateTime createTime;    // 创建时间
+    private List<String> roleIds;        // 绑定的角色ID列表
 }
