@@ -42,6 +42,7 @@ public class SecurityConfig {
                         // Swagger 文档相关路径放行
                         .requestMatchers(
                                 "/swagger-ui/**",
+                                "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**"

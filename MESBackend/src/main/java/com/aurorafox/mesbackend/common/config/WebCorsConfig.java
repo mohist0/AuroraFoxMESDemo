@@ -22,7 +22,7 @@ public class WebCorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // 匹配所有接口
-                        .allowedOrigins("*") // 允许所有来源（局域网内所有电脑）
+                        .allowedOriginPatterns("*") // 允许所有来源（局域网内所有电脑）
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*") // 允许所有请求头
                         .allowCredentials(true) // 允许携带 Cookie 或认证信息

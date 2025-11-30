@@ -32,8 +32,10 @@ public class ProductionOrderController {
      * @param id 订单编号
      * @return 生产订单信息
      */
-    @Operation(summary = "根据订单编号查询生产订单")
-    @Tag(name = "查询接口", description = "根据订单编号查询生产订单")
+    @Operation(
+            summary = "根据订单编号查询生产订单",
+            description = "通过订单编号查询生产订单的详细信息，包括数量、状态、交期等字段"
+    )
     @GetMapping("/getProductionOrderById/{id}")
     public ResponseEntity<ProductionOrderDto> getById(@PathVariable String id) {
         return productionOrderService.getById(id)
@@ -45,8 +47,10 @@ public class ProductionOrderController {
      * 获取所有生产订单
      * @return 生产订单列表
      */
-    @Operation(summary = "获取所有生产订单")
-    @Tag(name = "查询接口", description = "获取所有生产订单")
+    @Operation(
+            summary = "获取所有生产订单",
+            description = "查询系统中所有生产订单，返回订单编号、产品信息、数量和状态等基本数据"
+    )
     @GetMapping("/getAllProductionOrders")
     public ResponseEntity<List<ProductionOrderDto>> getAll() {
         return ResponseEntity.ok(productionOrderService.getAll());
@@ -57,8 +61,10 @@ public class ProductionOrderController {
      * @param request 创建请求对象
      * @return 创建后的生产订单信息
      */
-    @Operation(summary = "创建生产订单")
-    @Tag(name = "新增接口", description = "创建新的生产订单")
+    @Operation(
+            summary = "创建生产订单",
+            description = "根据前端传入的订单数据创建新的生产订单，默认状态为待排程"
+    )
     @PostMapping("/addProductionOrder")
     public ResponseEntity<ProductionOrderDto> create(@RequestBody ProductionOrderCreateRequest request) {
         return ResponseEntity.ok(productionOrderService.create(request));
@@ -69,8 +75,10 @@ public class ProductionOrderController {
      * @param id 订单编号
      * @return 删除结果
      */
-    @Operation(summary = "删除生产订单")
-    @Tag(name = "删除接口", description = "根据订单编号删除生产订单")
+    @Operation(
+            summary = "删除生产订单",
+            description = "根据订单编号删除生产订单，如果订单不存在则返回404"
+    )
     @DeleteMapping("/deleteProductionOrder/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         boolean deleted = productionOrderService.deleteById(id);
