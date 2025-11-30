@@ -48,10 +48,8 @@ public class SecurityConfig {
                         ).permitAll()
                         // 登录注册接口放行
                         .requestMatchers("/api/auth/**").permitAll()
-                        // 用户管理模块接口临时放行
-//                        .requestMatchers("/api/user/**").permitAll()
-                        // 角色管理模块接口临时放行
-//                        .requestMatchers("/api/role/**").permitAll()
+                        // 生产订单模块接口临时放行
+                        .requestMatchers("/api/productionorder/**").permitAll()
                         // 其他接口需要认证
                         .anyRequest().authenticated()
                 )
