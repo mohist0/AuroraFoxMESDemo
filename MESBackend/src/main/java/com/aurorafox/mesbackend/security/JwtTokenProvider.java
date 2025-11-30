@@ -44,7 +44,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
-                .claim("role", roleId)
+                .claim("role", "ROLE_" + roleId) // 存储带前缀的角色
                 .claim("permissions", permissions)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)

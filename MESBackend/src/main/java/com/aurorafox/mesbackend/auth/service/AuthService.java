@@ -75,11 +75,13 @@ public class AuthService {
                 .collect(Collectors.toList());
 
         // 5. 生成 JWT，写入用户名、角色和权限信息
+        String roleAuthority = "ROLE_" + request.getRoleId(); // 统一加前缀
+
         String token = jwtTokenProvider.generateToken(
                 org.springframework.security.core.userdetails.User
                         .withUsername(user.getUserName())
                         .password(user.getUserPassword())
-                        .authorities(request.getRoleId())
+                        .authorities(roleAuthority) // 只注入当前选择的角色
                         .build(),
                 request.getRoleId(),
                 permissions

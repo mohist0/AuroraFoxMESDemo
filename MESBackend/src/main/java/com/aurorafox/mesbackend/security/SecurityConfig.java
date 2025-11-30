@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  *  - 提供密码加密器（BCrypt），用于用户密码的安全存储
  */
 @Configuration
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter; // JWT 过滤器
@@ -47,9 +49,9 @@ public class SecurityConfig {
                         // 登录注册接口放行
                         .requestMatchers("/api/auth/**").permitAll()
                         // 用户管理模块接口临时放行
-                        .requestMatchers("/api/user/**").permitAll()
+//                        .requestMatchers("/api/user/**").permitAll()
                         // 角色管理模块接口临时放行
-                        .requestMatchers("/api/role/**").permitAll()
+//                        .requestMatchers("/api/role/**").permitAll()
                         // 其他接口需要认证
                         .anyRequest().authenticated()
                 )

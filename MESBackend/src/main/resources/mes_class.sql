@@ -434,8 +434,8 @@ VALUES ('S001', 'W001', 'O001', 'PR001', 'L001', 'M001', '2025-12-01 08:00:00', 
 -- 插入初始管理员用户 AuroraFox
 INSERT INTO users (user_id, user_name, user_password, salt_value, last_login_time, create_time)
 VALUES ('U001', 'AuroraFox',
-        '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', -- SHA256("123456" + salt)
-        'a1b2c3d4e5f67890abcdef1234567890', -- 盐值
+        '5b4e06d26456f8309e65fa1428465fc4becf2fe1eb585ba01912a047a9b93178', -- SHA256("123456" + salt)
+        '4e24fbc05f3775cbcecac324af29799f', -- 盐值
         NULL, NOW());
 
 -- 绑定 AuroraFox 用户到 R001 管理层

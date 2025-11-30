@@ -13,8 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * JwtAuthenticationFilter
@@ -77,14 +78,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 从 Token 中解析权限列表
                 List<String> permissions = jwtTokenProvider.getPermissionsFromToken(token);
 
-                // 构造认证对象，包含角色和权限
+                // 构造权限集合：包含角色和权限
+                List<GrantedAuthority> authorities = new ArrayList<>();
+                authorities.add((GrantedAuthority) () -> role); // 注入角色
+                permissions.forEach(p -> authorities.add((GrantedAuthority) () -> p));
+
+                // 构造认证对象
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
-                                permissions.stream()
-                                        .map(p -> (org.springframework.security.core.GrantedAuthority) () -> p)
-                                        .collect(Collectors.toList())
+                                authorities
                         );
 
                 // 设置请求详情（IP、Session 等）

@@ -5,6 +5,7 @@ import com.aurorafox.mesbackend.auth.dto.LoginResponseDto;
 import com.aurorafox.mesbackend.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
  *  - /api/auth/login 登录接口
  *  - /api/auth/logout 退出登录接口
  */
+@Tag(name = "登录认证接口", description = "提供用户登录和退出登录功能")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
