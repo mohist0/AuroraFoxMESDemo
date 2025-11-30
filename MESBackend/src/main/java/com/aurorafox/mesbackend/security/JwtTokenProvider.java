@@ -13,8 +13,8 @@ import java.util.Date;
  * JwtTokenProvider
  * ----------------------------
  * JWT 工具类：
- *  - 生成 JWT Token
- *  - 解析 Token 获取用户名
+ *  - 生成 JWT Token（包含角色信息）
+ *  - 解析 Token 获取用户名和角色
  *  - 验证 Token 是否有效
  */
 @Component
@@ -23,9 +23,6 @@ public class JwtTokenProvider {
     private final Key secretKey;                // 用于签名和校验的密钥
     private final long validityInMilliseconds;  // Token 有效期（毫秒）
 
-    /**
-     * 构造函数：从配置文件注入 secret 和 expiration
-     */
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration}") long validityInMilliseconds) {
@@ -36,14 +33,16 @@ public class JwtTokenProvider {
     /**
      * 生成 JWT Token
      * @param userDetails 用户信息
+     * @param roleId 登录时选择的角色ID
      * @return JWT 字符串
      */
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, String roleId) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
                 .setSubject(userDetails.getUsername()) // 设置用户名
+                .claim("role", roleId)                 // 写入角色信息
                 .setIssuedAt(now)                      // 签发时间
                 .setExpiration(expiryDate)             // 过期时间
                 .signWith(secretKey, SignatureAlgorithm.HS256) // 使用 HS256 算法签名
@@ -60,6 +59,18 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    /**
+     * 从 Token 中解析角色
+     */
+    public String getRoleFromToken(String token) {
+        return (String) Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role");
     }
 
     /**

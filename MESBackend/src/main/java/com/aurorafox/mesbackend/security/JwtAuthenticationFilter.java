@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * JwtAuthenticationFilter
@@ -21,7 +22,7 @@ import java.io.IOException;
  *  - 拦截每个请求，检查是否携带 JWT Token
  *  - 验证 Token 是否有效
  *  - 校验 Token 是否在黑名单中（退出登录后失效）
- *  - 如果有效，将用户信息放入 SecurityContext，供后续授权使用
+ *  - 如果有效，将用户信息和角色信息放入 SecurityContext，供后续授权使用
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -69,9 +70,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtTokenProvider.validateToken(token, userDetails)
                     && !authService.isTokenBlacklisted(token)) {
 
+                // 从 Token 中解析角色信息
+                String role = jwtTokenProvider.getRoleFromToken(token);
+
+                // 构造认证对象，包含角色信息
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
+                                userDetails, null, List.of(() -> role));
 
                 // 设置请求详情（IP、Session 等）
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
