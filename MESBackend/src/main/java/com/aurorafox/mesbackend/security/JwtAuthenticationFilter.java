@@ -14,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * JwtAuthenticationFilter
@@ -22,7 +23,7 @@ import java.util.List;
  *  - 拦截每个请求，检查是否携带 JWT Token
  *  - 验证 Token 是否有效
  *  - 校验 Token 是否在黑名单中（退出登录后失效）
- *  - 如果有效，将用户信息和角色信息放入 SecurityContext，供后续授权使用
+ *  - 如果有效，将用户信息、角色和权限放入 SecurityContext，供后续授权使用
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -73,10 +74,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 从 Token 中解析角色信息
                 String role = jwtTokenProvider.getRoleFromToken(token);
 
-                // 构造认证对象，包含角色信息
+                // 从 Token 中解析权限列表
+                List<String> permissions = jwtTokenProvider.getPermissionsFromToken(token);
+
+                // 构造认证对象，包含角色和权限
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails, null, List.of(() -> role));
+                                userDetails,
+                                null,
+                                permissions.stream()
+                                        .map(p -> (org.springframework.security.core.GrantedAuthority) () -> p)
+                                        .collect(Collectors.toList())
+                        );
 
                 // 设置请求详情（IP、Session 等）
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

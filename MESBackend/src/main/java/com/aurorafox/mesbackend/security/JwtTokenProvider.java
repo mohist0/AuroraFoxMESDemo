@@ -8,20 +8,21 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 /**
  * JwtTokenProvider
  * ----------------------------
  * JWT 工具类：
- *  - 生成 JWT Token（包含角色信息）
- *  - 解析 Token 获取用户名和角色
+ *  - 生成 JWT Token（包含角色和权限信息）
+ *  - 解析 Token 获取用户名、角色和权限
  *  - 验证 Token 是否有效
  */
 @Component
 public class JwtTokenProvider {
 
-    private final Key secretKey;                // 用于签名和校验的密钥
-    private final long validityInMilliseconds;  // Token 有效期（毫秒）
+    private final Key secretKey;
+    private final long validityInMilliseconds;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
@@ -34,18 +35,20 @@ public class JwtTokenProvider {
      * 生成 JWT Token
      * @param userDetails 用户信息
      * @param roleId 登录时选择的角色ID
+     * @param permissions 当前角色对应的权限列表
      * @return JWT 字符串
      */
-    public String generateToken(UserDetails userDetails, String roleId) {
+    public String generateToken(UserDetails userDetails, String roleId, List<String> permissions) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(userDetails.getUsername()) // 设置用户名
-                .claim("role", roleId)                 // 写入角色信息
-                .setIssuedAt(now)                      // 签发时间
-                .setExpiration(expiryDate)             // 过期时间
-                .signWith(secretKey, SignatureAlgorithm.HS256) // 使用 HS256 算法签名
+                .setSubject(userDetails.getUsername())
+                .claim("role", roleId)
+                .claim("permissions", permissions)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -53,24 +56,25 @@ public class JwtTokenProvider {
      * 从 Token 中解析用户名
      */
     public String getUsernameFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        return Jwts.parserBuilder().setSigningKey(secretKey).build()
+                .parseClaimsJws(token).getBody().getSubject();
     }
 
     /**
      * 从 Token 中解析角色
      */
     public String getRoleFromToken(String token) {
-        return (String) Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("role");
+        return (String) Jwts.parserBuilder().setSigningKey(secretKey).build()
+                .parseClaimsJws(token).getBody().get("role");
+    }
+
+    /**
+     * 从 Token 中解析权限列表
+     */
+    @SuppressWarnings("unchecked")
+    public List<String> getPermissionsFromToken(String token) {
+        return (List<String>) Jwts.parserBuilder().setSigningKey(secretKey).build()
+                .parseClaimsJws(token).getBody().get("permissions");
     }
 
     /**
@@ -89,12 +93,8 @@ public class JwtTokenProvider {
      * 判断 Token 是否过期
      */
     private boolean isTokenExpired(String token) {
-        Date expiration = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
+        Date expiration = Jwts.parserBuilder().setSigningKey(secretKey).build()
+                .parseClaimsJws(token).getBody().getExpiration();
         return expiration.before(new Date());
     }
 }
