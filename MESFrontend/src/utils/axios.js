@@ -1,16 +1,18 @@
 import axios from "axios";
 
 const service = axios.create({
-    baseURL: "/api",    // 关键点：这里写 /api
-    timeout: 5000
+    baseURL: "http://localhost:8080/api", // 指向后端
+    timeout: 5000,
+    withCredentials: true, // 如果后端需要 cookie
 });
 
-// 拦截器可以自由加
 service.interceptors.request.use(
     (config) => {
-        // 如果你有 token，自动挂上
         const token = localStorage.getItem("token");
-        if (token) config.headers["Authorization"] = token;
+        // 登录请求不加 token
+        if (token && !config.url.includes("/auth/login")) {
+            config.headers["Authorization"] = `Bearer ${token}`;
+        }
         return config;
     },
     (error) => Promise.reject(error)

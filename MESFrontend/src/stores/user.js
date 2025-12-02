@@ -11,18 +11,25 @@ export const useUserStore = defineStore("user", {
     }),
     actions: {
         async loginUser({ username, password, roleId }) {
-            const res = await login({ username, password, roleId });
-            this.token = res.token;
-            this.username = username;
-            this.roleId = res.roleId;
-            this.roleName = res.roleName;
-            this.permissions = res.permissions || [];
-            localStorage.setItem("token", res.token);
+            try {
+                const res = await login({ username, password, roleId });
+                console.log("登录接口返回：", res);
+
+                // 后端返回 token 在 res.data.token
+                const data = res.data || res;
+                this.token = data.token;
+                this.username = username;
+                this.roleId = data.roleId;
+                this.roleName = data.roleName;
+                this.permissions = data.permissions || [];
+                localStorage.setItem("token", data.token);
+            } catch (err) {
+                console.error("登录失败", err);
+                throw err;
+            }
         },
         async logoutUser() {
-            if (this.token) {
-                await logout(this.token);
-            }
+            if (this.token) await logout(this.token);
             this.token = "";
             this.username = "";
             this.roleId = "";
