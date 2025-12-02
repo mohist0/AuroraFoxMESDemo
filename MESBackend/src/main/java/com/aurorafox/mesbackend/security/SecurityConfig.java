@@ -49,6 +49,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/**").permitAll()
                         // 角色管理模块接口临时放行
                         .requestMatchers("/api/role/**").permitAll()
+                        // 权限管理模块接口临时放行
+                        .requestMatchers("/api/permission/**").permitAll()
                         // 其他接口需要认证
                         .anyRequest().authenticated()
                 )
