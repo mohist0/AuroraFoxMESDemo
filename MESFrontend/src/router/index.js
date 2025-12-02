@@ -16,6 +16,9 @@ import Dashboard from '../views/DataDashboard/Dashboard.vue'
 import Trend from '../views/DataDashboard/Trend.vue'
 import DeptCompare from '../views/DataDashboard/DeptCompare.vue'
 import UserManage from '../views/Main/UserManage.vue'
+import RoleManage from '../views/Main/RoleManage.vue'
+import PermissionManage from '../views/Main/PermissionManage.vue'
+import Settings from '../views/Main/Settings.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -83,31 +86,51 @@ const router = createRouter({
           path: 'Maintain',
           name: 'Maintain',
           component: Maintain
-        },       
+        },
         {
           path: 'EQPBook',
           name: 'EQPBook',
           component: EQPBook
-        },       
+        },
         {
           path: 'Dashboard',
           name: 'Dashboard',
           component: Dashboard
-        },        
+        },
         {
           path: 'Trend',
           name: 'Trend',
           component: Trend
-        },        
+        },
         {
           path: 'DeptCompare',
           name: 'DeptCompare',
           component: DeptCompare
-        },        
+        },
         {
           path: 'UserManage',
           name: 'UserManage',
           component: UserManage
+        },
+        {
+          path: 'RoleManage',
+          name: 'RoleManage',
+          component: RoleManage
+        }, 
+        {
+          path: 'UserManage',
+          name: 'UserManage',
+          component: UserManage
+        }, 
+        {
+          path: 'PermissionManage',
+          name: 'PermissionManage',
+          component: PermissionManage
+        }, 
+        {
+          path: 'Settings',
+          name: 'Settings',
+          component: Settings
         },
       ]
     }
