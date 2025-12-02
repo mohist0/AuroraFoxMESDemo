@@ -18,59 +18,59 @@ import java.util.Set;
 @Builder
 public class Role {
 
-    /** 角色编号，主键 */
+    /**
+     * 角色编号（主键）
+     */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "role_id", length = 50, nullable = false)
+    private String roleId;
 
-    private String name;
+    /**
+     * 角色名称（非空）
+     */
+    @Column(name = "role_name", length = 100, nullable = false)
+    private String roleName;
 
-    private String description;
+    /**
+     * 角色说明
+     */
+    @Column(name = "role_desc", columnDefinition = "TEXT")
+    private String roleDesc;
 
-    @OneToMany(mappedBy = "role")
-    private Set<UserRole> userRoles = new HashSet<>();
+    /**
+     * 创建时间
+     */
+    @Column(name = "create_time")
+    private LocalDateTime createTime;
 
-    @OneToMany(mappedBy = "role")
-    private Set<RolePermission> rolePermissions = new HashSet<>();
+    /**
+     * 角色与用户的多对多关联（通过中间表 user_role）
+     *  cascade = CascadeType.REFRESH：刷新关联数据，不级联增删改
+     */
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_role",  // 中间表名称
+            joinColumns = @JoinColumn(name = "role_id"),  // 当前表在中间表的外键
+            inverseJoinColumns = @JoinColumn(name = "user_id")  // 关联表（用户表）在中间表的外键
+    )
+    private Set<User> users = new HashSet<>();
 
-    // Getter 和 Setter 方法
-    public Long getId() {
-        return id;
-    }
+    /**
+     * 角色与权限的多对多关联（通过中间表 role_permission）
+     */
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "role_permission",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private Set<Permission> permissions = new HashSet<>();
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Set<UserRole> getUserRoles() {
-        return userRoles;
-    }
-
-    public void setUserRoles(Set<UserRole> userRoles) {
-        this.userRoles = userRoles;
-    }
-
-    public Set<RolePermission> getRolePermissions() {
-        return rolePermissions;
-    }
-
-    public void setRolePermissions(Set<RolePermission> rolePermissions) {
-        this.rolePermissions = rolePermissions;
+    /**
+     * 预处理：创建时间自动填充
+     */
+    @PrePersist
+    public void prePersist() {
+        this.createTime = LocalDateTime.now();
     }
 }

@@ -39,6 +39,7 @@ public class SecurityConfig {
                         // Swagger 文档相关路径放行
                         .requestMatchers(
                                 "/swagger-ui/**",
+                                "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**"
@@ -47,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // 用户管理模块接口临时放行
                         .requestMatchers("/api/user/**").permitAll()
+                        // 角色管理模块接口临时放行
+                        .requestMatchers("/api/roles/**").permitAll()
                         // 其他接口需要认证
                         .anyRequest().authenticated()
                 )

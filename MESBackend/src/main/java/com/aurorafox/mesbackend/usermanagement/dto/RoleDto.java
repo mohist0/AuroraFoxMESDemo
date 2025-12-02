@@ -1,36 +1,49 @@
 package com.aurorafox.mesbackend.usermanagement.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+import java.time.LocalDateTime;
+import lombok.Data;
+import java.util.Set;
+
 /**
- * 角色数据传输对象 (DTO)，用于角色的增删查改操作。
+ * 角色数据传输对象
+ * 用于角色信息的传输和展示
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Schema(description = "角色信息传输对象")
 public class RoleDto {
 
-    private Long id;
-    private String name;
-    private String description;
+    /**
+     * 角色编号
+     */
+    private String roleId;
 
-    // Getter 和 Setter 方法
-    public Long getId() {
-        return id;
-    }
+    /**
+     * 角色名称
+     */
+    private String roleName;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    /**
+     * 角色说明
+     */
+    private String roleDesc;
 
-    public String getName() {
-        return name;
-    }
+    /**
+     * 创建时间（仅用于查询返回，创建时无需传入）
+     */
+    private LocalDateTime createTime;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    /**
+     * 关联的权限ID集合（用于角色-权限关联操作）
+     */
+    private Set<String> permissionIds;
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    /**
+     * 关联的用户ID集合（用于查询角色关联的用户，创建/修改时无需传入）
+     */
+    private Set<String> userIds;
 }

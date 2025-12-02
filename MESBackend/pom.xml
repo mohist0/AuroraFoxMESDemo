@@ -99,8 +99,9 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>1.18.42</version> <!-- 使用最新稳定版本 -->
         </dependency>
+
 
         <!-- Spring Boot Starter Test 依赖，用于测试 -->
         <dependency>
@@ -170,12 +171,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.1</version> <!-- 必须加 -->
                 <configuration>
+                    <source>17</source>
+                    <target>17</target>
                     <!-- 注解处理器路径配置，用于支持Lombok -->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                            <version>1.18.30</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -187,12 +192,12 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <!-- 排除Lombok，因为Lombok在运行时不需要 -->
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
+                    <!--  <excludes>
+                         <exclude>
+                             <groupId>org.projectlombok</groupId>
+                             <artifactId>lombok</artifactId>
+                         </exclude>
+                     </excludes>-->
                 </configuration>
             </plugin>
         </plugins>
