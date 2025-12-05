@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
  * 提供角色管理的REST API接口
  */
 @RestController
-@RequestMapping("/api/roles")
+@RequestMapping("/api/role")
 @RequiredArgsConstructor
 @Tag(name = "角色管理", description = "角色相关操作接口")
 public class RoleController {
