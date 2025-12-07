@@ -99,7 +99,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.42</version> <!-- 使用最新稳定版本 -->
+            <version>1.18.30</version> <!-- 使用最新稳定版本 -->
         </dependency>
 
 
@@ -171,7 +171,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.1</version> <!-- 必须加 -->
+                <version>3.11.0</version> <!-- 必须加 -->
                 <configuration>
                     <source>17</source>
                     <target>17</target>
