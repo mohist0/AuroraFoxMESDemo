@@ -12,7 +12,12 @@ export default defineConfig({
     }
   },
   server: {
-    port: 8080, // 可选：设置启动端口
-    open: true // 可选：自动打开浏览器
+     proxy: {
+      // 匹配/api开头的请求，转发到后端服务
+      '/api': {
+        target: 'http://localhost:5173', // 后端服务地址（端口与后端一致）
+        changeOrigin: true, // 开启跨域
+        rewrite: (path) => path.replace(/^\/api/, '') // 可选：去掉/api前缀（若后端接口无/api）
+      }
   }
-});
+  }});
