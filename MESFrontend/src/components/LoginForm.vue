@@ -64,7 +64,7 @@ async function handleSubmit() {
   try {
     await userStore.loginUser(form);
     alert("登录成功！");
-    router.push("/MainLayout");// 自动跳转页面
+    router.push("/");// 自动跳转页面
   } catch (e) {
     alert("登录失败：" + (e.response?.data?.message || e.message));
   } finally {
