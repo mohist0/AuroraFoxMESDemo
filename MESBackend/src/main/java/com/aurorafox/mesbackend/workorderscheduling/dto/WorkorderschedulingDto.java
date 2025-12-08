@@ -1,14 +1,9 @@
 package com.aurorafox.mesbackend.workorderscheduling.dto;
 
 import lombok.*;
-
 import java.time.LocalDateTime;
 
-/**
- * 工单排程响应 DTO
- * <p>
- * 用于向客户端返回完整的排程信息，包括主键与时间字段。
- */
+// 工单排程响应 DTO，对应 production_schedule 表
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,31 +11,31 @@ import java.time.LocalDateTime;
 @Builder
 public class WorkorderschedulingDto {
 
-    private String scheduleId;
+    private String scheduleId; // 排程编号
 
-    private String workOrderId;
+    private String workOrderId; // 工单编号
 
-    private String orderId;
+    private String orderId; // 生产订单编号
 
-    private String productId;
+    private String productId; // 产品编号
 
-    private String lineId;
+    private String lineId; // 生产线编号
 
-    private String deviceId;
+    private String deviceId; // 设备编号
 
-    private String materialId;
+    private String materialId; // 物料编号
 
-    private LocalDateTime plannedStartTime;
+    private LocalDateTime plannedStartTime; // 计划开工时间
 
-    private LocalDateTime plannedEndTime;
+    private LocalDateTime plannedEndTime; // 计划完工时间
 
-    private LocalDateTime actualStartTime;
+    private LocalDateTime actualStartTime; // 实际开工时间
 
-    private LocalDateTime actualEndTime;
+    private LocalDateTime actualEndTime; // 实际完工时间
 
-    private String remark;
+    private String remark; // 备注
 
-    private LocalDateTime createTime;
+    private LocalDateTime createTime; // 创建时间
 
-    private LocalDateTime updateTime;
+    private LocalDateTime updateTime; // 更新时间
 }

@@ -12,33 +12,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * 工单排程业务逻辑服务
- * <p>
- * 提供创建/查询/更新/删除等业务方法，输入输出使用 DTO 层。
- */
+// 工单排程业务逻辑服务，提供创建/查询/更新/删除等业务方法
 @Service
 @RequiredArgsConstructor
 public class WorkorderschedulingService {
 
     private final WorkorderschedulingRepository scheduleRepository;
 
-    /**
-     * 新增工单排程
-     *
-     * @param dto 新建 DTO
-     * @return 保存后的响应 DTO
-     */
+    // 新增工单排程，必须由调用方提供 scheduleId
     @Transactional
     public WorkorderschedulingDto createSchedule(WorkorderschedulingCreateDto dto) {
         Workorderscheduling entity = new Workorderscheduling();
         BeanUtils.copyProperties(dto, entity);
-        // 若调用方不提供主键则生成 UUID 作为 scheduleId
         if (entity.getScheduleId() == null || entity.getScheduleId().isBlank()) {
-            entity.setScheduleId(UUID.randomUUID().toString());
+            throw new IllegalArgumentException("创建排程时必须提供 scheduleId");
         }
         entity.setCreateTime(LocalDateTime.now());
         entity.setUpdateTime(LocalDateTime.now());
@@ -46,13 +35,7 @@ public class WorkorderschedulingService {
         return toDto(saved);
     }
 
-    /**
-     * 根据 ID 查询工单排程
-     *
-     * @param scheduleId 排程编号
-     * @return 排程响应 DTO
-     * @throws IllegalArgumentException 排程不存在
-     */
+    // 根据 ID 查询工单排程
     @Transactional(readOnly = true)
     public WorkorderschedulingDto getSchedule(String scheduleId) {
         Workorderscheduling entity = scheduleRepository.findById(scheduleId)
@@ -60,11 +43,7 @@ public class WorkorderschedulingService {
         return toDto(entity);
     }
 
-    /**
-     * 查询全部工单排程
-     *
-     * @return 排程响应 DTO 列表
-     */
+    // 查询全部工单排程
     @Transactional(readOnly = true)
     public List<WorkorderschedulingDto> listAllSchedules() {
         return scheduleRepository.findAll()
@@ -73,30 +52,18 @@ public class WorkorderschedulingService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 更新工单排程
-     *
-     * @param dto 更新 DTO（必须包含 scheduleId）
-     * @return 更新后的响应 DTO
-     * @throws IllegalArgumentException 排程不存在
-     */
+    // 更新工单排程，排除 scheduleId 和 createTime，不允许更新主键
     @Transactional
-    public WorkorderschedulingDto updateSchedule(WorkorderschedulingUpdateDto dto) {
-        Workorderscheduling entity = scheduleRepository.findById(dto.getScheduleId())
-                .orElseThrow(() -> new IllegalArgumentException("工单排程不存在: " + dto.getScheduleId()));
-        // 复制可更新字段（排除 createTime）
-        BeanUtils.copyProperties(dto, entity, "createTime");
+    public WorkorderschedulingDto updateSchedule(String scheduleId, WorkorderschedulingUpdateDto dto) {
+        Workorderscheduling entity = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new IllegalArgumentException("工单排程不存在: " + scheduleId));
+        BeanUtils.copyProperties(dto, entity, "scheduleId", "createTime");
         entity.setUpdateTime(LocalDateTime.now());
         Workorderscheduling updated = scheduleRepository.save(entity);
         return toDto(updated);
     }
 
-    /**
-     * 删除工单排程
-     *
-     * @param scheduleId 排程编号
-     * @throws IllegalArgumentException 排程不存在
-     */
+    // 删除工单排程
     @Transactional
     public void deleteSchedule(String scheduleId) {
         if (!scheduleRepository.existsById(scheduleId)) {
