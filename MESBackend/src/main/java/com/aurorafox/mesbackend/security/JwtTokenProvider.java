@@ -1,4 +1,3 @@
-// language: java
 package com.aurorafox.mesbackend.security;
 
 import io.jsonwebtoken.*;
@@ -9,26 +8,22 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 /**
- * JWT 工具类
- * 功能：
- * - 生成 JWT Token
- * - 解析 Token 获取用户名
- * - 验证 Token 是否有效
+ * JwtTokenProvider
+ * ----------------------------
+ * JWT 工具类：
+ *  - 生成 JWT Token（包含角色和权限信息）
+ *  - 解析 Token 获取用户名、角色和权限
+ *  - 验证 Token 是否有效
  */
 @Component
 public class JwtTokenProvider {
 
-    /** 用于签名和校验的密钥 */
     private final Key secretKey;
-
-    /** Token 有效期（毫秒） */
     private final long validityInMilliseconds;
 
-    /**
-     * 从配置文件注入 secret 和 expiration
-     */
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration}") long validityInMilliseconds) {
@@ -38,13 +33,19 @@ public class JwtTokenProvider {
 
     /**
      * 生成 JWT Token
+     * @param userDetails 用户信息
+     * @param roleId 登录时选择的角色ID
+     * @param permissions 当前角色对应的权限列表
+     * @return JWT 字符串
      */
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, String roleId, List<String> permissions) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validityInMilliseconds);
 
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
+                .claim("role", "ROLE_" + roleId) // 存储带前缀的角色
+                .claim("permissions", permissions)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -55,12 +56,25 @@ public class JwtTokenProvider {
      * 从 Token 中解析用户名
      */
     public String getUsernameFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        return Jwts.parserBuilder().setSigningKey(secretKey).build()
+                .parseClaimsJws(token).getBody().getSubject();
+    }
+
+    /**
+     * 从 Token 中解析角色
+     */
+    public String getRoleFromToken(String token) {
+        return (String) Jwts.parserBuilder().setSigningKey(secretKey).build()
+                .parseClaimsJws(token).getBody().get("role");
+    }
+
+    /**
+     * 从 Token 中解析权限列表
+     */
+    @SuppressWarnings("unchecked")
+    public List<String> getPermissionsFromToken(String token) {
+        return (List<String>) Jwts.parserBuilder().setSigningKey(secretKey).build()
+                .parseClaimsJws(token).getBody().get("permissions");
     }
 
     /**
@@ -79,12 +93,8 @@ public class JwtTokenProvider {
      * 判断 Token 是否过期
      */
     private boolean isTokenExpired(String token) {
-        Date expiration = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
+        Date expiration = Jwts.parserBuilder().setSigningKey(secretKey).build()
+                .parseClaimsJws(token).getBody().getExpiration();
         return expiration.before(new Date());
     }
 }

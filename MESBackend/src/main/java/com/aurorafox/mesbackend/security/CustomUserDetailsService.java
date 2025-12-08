@@ -11,16 +11,26 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 
 /**
- * 自定义用户信息加载服务
- * 作用：
- * - 根据用户名从数据库加载用户信息
- * - 转换为 Spring Security 的 UserDetails 对象
+ * CustomUserDetailsService
+ * ----------------------------
+ * 自定义用户信息加载服务：
+ *  - 根据用户名从数据库加载用户信息
+ *  - 转换为 Spring Security 的 UserDetails 对象
+ *
+ * 使用场景：
+ *  - 被 JwtAuthenticationFilter 调用，用于校验 Token 时加载用户信息
+ *  - 被 AuthenticationManager 调用，用于登录认证
  */
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserRepository userRepository; // 用户数据访问层
 
+    /**
+     * 构造函数注入依赖
+     *
+     * @param userRepository 用户数据仓库
+     */
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -42,13 +52,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // 将 User 转换为 Spring Security 的 UserDetails
         return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUserName())
-                .password(user.getUserPassword()) // 已加密的密码
-                .authorities((GrantedAuthority) Collections.singletonList("ROLE_USER")) // 默认角色，可扩展为从数据库加载
-                .accountExpired(false)
-                .accountLocked(false)
-                .credentialsExpired(false)
-                .disabled(false)
+                .withUsername(user.getUserName())          // 用户名
+                .password(user.getUserPassword())          // 已加密的密码
+                .authorities((GrantedAuthority) () -> "ROLE_USER") // 默认角色，可扩展为从数据库加载
+                .accountExpired(false)                     // 账号未过期
+                .accountLocked(false)                      // 账号未锁定
+                .credentialsExpired(false)                 // 凭证未过期
+                .disabled(false)                           // 账号未禁用
                 .build();
     }
 }

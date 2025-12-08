@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 @Tag(name = "用户管理接口", description = "提供用户的增删查改及角色绑定功能")
 @RestController
 @RequestMapping("/api/user")
+@PreAuthorize("hasAuthority('ROLE_R002')") // 整个控制器只能角色 系统管理员 访问
 public class UserController {
 
     private final UserService userService;

@@ -41,4 +41,9 @@ public class PasswordUtil {
         }
         return sb.toString();
     }
+
+    // 新增方法：简化调用
+    public static boolean matches(String rawPassword, String salt, String hashedPassword) {
+        return verifyPassword(rawPassword, salt, hashedPassword);
+    }
 }

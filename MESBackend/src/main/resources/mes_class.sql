@@ -431,5 +431,24 @@ INSERT INTO production_schedule (schedule_id, work_order_id, order_id, product_i
 VALUES ('S001', 'W001', 'O001', 'PR001', 'L001', 'M001', '2025-12-01 08:00:00', '2025-12-15 18:00:00',
         '2025-12-01 09:00:00', NULL, '排程使用硅晶圆作为主要物料', NOW());
 
+-- 插入初始管理员用户 AuroraFox
+INSERT INTO users (user_id, user_name, user_password, salt_value, last_login_time, create_time)
+VALUES ('U001', 'AuroraFox',
+        '5b4e06d26456f8309e65fa1428465fc4becf2fe1eb585ba01912a047a9b93178', -- SHA256("123456" + salt)
+        '4e24fbc05f3775cbcecac324af29799f', -- 盐值
+        NULL, NOW());
+
+-- 绑定 AuroraFox 用户到 R001 管理层
+INSERT INTO user_role (ur_id, user_id, role_id, create_time)
+VALUES (UUID(), 'U001', 'R001', NOW());
+
+-- 绑定 AuroraFox 用户到 R002 系统管理员
+INSERT INTO user_role (ur_id, user_id, role_id, create_time)
+VALUES (UUID(), 'U001', 'R002', NOW());
+
+-- 绑定 AuroraFox 用户到 R004 生产计划员
+INSERT INTO user_role (ur_id, user_id, role_id, create_time)
+VALUES (UUID(), 'U001', 'R004', NOW());
+
 -- 所有表定义完成后重新开启外键检查
 SET FOREIGN_KEY_CHECKS = 1;
