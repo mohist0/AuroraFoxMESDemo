@@ -445,6 +445,13 @@ INSERT INTO work_order (work_order_id, order_id, product_id, quantity, scheduled
 VALUES ('W001', 'O001', 'PR001', 500, 300, 100, '生产中', '2025-12-01 08:00:00', '2025-12-15 18:00:00',
         '2025-12-01 09:00:00', NULL, 'L001', '首批工单，分配到生产线A', NOW());
 
+-- 插入设备数据
+INSERT INTO device (device_id, device_name, line_id, device_desc, create_time)
+VALUES
+    ('D001', '光刻机A', 'L001', '用于高性能芯片生产的光刻设备', NOW()),
+    ('D002', '测试仪B', 'L002', '用于低功耗芯片生产的电性能测试设备', NOW()),
+    ('D003', '备用设备C', 'L003', '备用生产线上的通用设备', NOW());
+
 -- 插入生产排程数据
 INSERT INTO production_schedule (schedule_id, work_order_id, order_id, product_id, line_id, device_id, material_id,
                                  planned_start_time, planned_end_time, actual_start_time, actual_end_time, remark,

@@ -1,8 +1,10 @@
-package com.aurorafox.mesbackend.usermanagement.service;
+package com.aurorafox.mesbackend.workorderscheduling.service;
 
-import com.aurorafox.mesbackend.usermanagement.dto.WorkorderschedulingDto;
-import com.aurorafox.mesbackend.usermanagement.entity.Workorderscheduling;
-import com.aurorafox.mesbackend.usermanagement.repository.WorkorderschedulingRepository;
+import com.aurorafox.mesbackend.workorderscheduling.dto.WorkorderschedulingCreateDto;
+import com.aurorafox.mesbackend.workorderscheduling.dto.WorkorderschedulingDto;
+import com.aurorafox.mesbackend.workorderscheduling.dto.WorkorderschedulingUpdateDto;
+import com.aurorafox.mesbackend.workorderscheduling.entity.Workorderscheduling;
+import com.aurorafox.mesbackend.workorderscheduling.repository.WorkorderschedulingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -10,10 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
  * 工单排程业务逻辑服务
+ * <p>
+ * 提供创建/查询/更新/删除等业务方法，输入输出使用 DTO 层。
  */
 @Service
 @RequiredArgsConstructor
@@ -24,13 +29,17 @@ public class WorkorderschedulingService {
     /**
      * 新增工单排程
      *
-     * @param dto 排程 DTO
-     * @return 保存后的排程 DTO
+     * @param dto 新建 DTO
+     * @return 保存后的响应 DTO
      */
     @Transactional
-    public WorkorderschedulingDto createSchedule(WorkorderschedulingDto dto) {
+    public WorkorderschedulingDto createSchedule(WorkorderschedulingCreateDto dto) {
         Workorderscheduling entity = new Workorderscheduling();
         BeanUtils.copyProperties(dto, entity);
+        // 若调用方不提供主键则生成 UUID 作为 scheduleId
+        if (entity.getScheduleId() == null || entity.getScheduleId().isBlank()) {
+            entity.setScheduleId(UUID.randomUUID().toString());
+        }
         entity.setCreateTime(LocalDateTime.now());
         entity.setUpdateTime(LocalDateTime.now());
         Workorderscheduling saved = scheduleRepository.save(entity);
@@ -41,7 +50,7 @@ public class WorkorderschedulingService {
      * 根据 ID 查询工单排程
      *
      * @param scheduleId 排程编号
-     * @return 排程 DTO
+     * @return 排程响应 DTO
      * @throws IllegalArgumentException 排程不存在
      */
     @Transactional(readOnly = true)
@@ -54,7 +63,7 @@ public class WorkorderschedulingService {
     /**
      * 查询全部工单排程
      *
-     * @return 排程 DTO 列表
+     * @return 排程响应 DTO 列表
      */
     @Transactional(readOnly = true)
     public List<WorkorderschedulingDto> listAllSchedules() {
@@ -67,14 +76,15 @@ public class WorkorderschedulingService {
     /**
      * 更新工单排程
      *
-     * @param dto 排程 DTO（必须包含 scheduleId）
-     * @return 更新后的排程 DTO
+     * @param dto 更新 DTO（必须包含 scheduleId）
+     * @return 更新后的响应 DTO
      * @throws IllegalArgumentException 排程不存在
      */
     @Transactional
-    public WorkorderschedulingDto updateSchedule(WorkorderschedulingDto dto) {
+    public WorkorderschedulingDto updateSchedule(WorkorderschedulingUpdateDto dto) {
         Workorderscheduling entity = scheduleRepository.findById(dto.getScheduleId())
                 .orElseThrow(() -> new IllegalArgumentException("工单排程不存在: " + dto.getScheduleId()));
+        // 复制可更新字段（排除 createTime）
         BeanUtils.copyProperties(dto, entity, "createTime");
         entity.setUpdateTime(LocalDateTime.now());
         Workorderscheduling updated = scheduleRepository.save(entity);
@@ -94,8 +104,6 @@ public class WorkorderschedulingService {
         }
         scheduleRepository.deleteById(scheduleId);
     }
-
-    /* ---------- 私有工具方法 ---------- */
 
     private WorkorderschedulingDto toDto(Workorderscheduling entity) {
         WorkorderschedulingDto dto = new WorkorderschedulingDto();
