@@ -1,16 +1,15 @@
 package com.aurorafox.mesbackend.usermanagement.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 /**
  * 用户信息表实体类，对应数据库表 users
  */
+
+@Data
 @Entity // 标记该类为 JPA 实体类，会映射到数据库表
 @Table(name = "users") // 指定映射的数据库表名
 @Getter // Lombok 自动生成所有字段的 getter 方法
@@ -56,4 +55,6 @@ public class User {
      */
     @Column(name = "create_time", insertable = false, updatable = false)
     private LocalDateTime createTime;
+
+
 }

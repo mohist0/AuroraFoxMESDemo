@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *  - 提供查询、创建、删除等功能
  */
 @Service
-public class ProductionOrderService {
+public class  ProductionOrderService {
 
     private final ProductionOrderRepository repository;
 
