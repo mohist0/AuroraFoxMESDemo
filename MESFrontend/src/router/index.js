@@ -19,122 +19,60 @@ import UserManage from '../views/Main/UserManage.vue'
 import RoleManage from '../views/Main/RoleManage.vue'
 import PermissionManage from '../views/Main/PermissionManage.vue'
 import Settings from '../views/Main/Settings.vue'
+import LoginForm from '../components/LoginForm.vue'
+
+const routes = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: LoginForm
+  },
+  {
+    path: '/',
+    component: MainLayout,
+    meta: { requiresAuth: true }, // 主页面需要登录
+    children: [
+      { path: '', name: 'Home', component: null },
+      { path: 'Order', name: 'Order', component: Order },
+      { path: 'Dispatch', name: 'Dispatch', component: Dispatch },
+      { path: 'PlanGantt', name: 'PlanGantt', component: PlanGantt },
+      { path: 'Report', name: 'Report', component: Report },
+      { path: 'Notice', name: 'Notice', component: Notice },
+      { path: 'Abnormal', name: 'Abnormal', component: Abnormal },
+      { path: 'QualityInput', name: 'QualityInput', component: QualityInput },
+      { path: 'Trace', name: 'Trace', component: Trace },
+      { path: 'Defect', name: 'Defect', component: Defect },
+      { path: 'EQPState', name: 'EQPState', component: EQPState },
+      { path: 'Maintain', name: 'Maintain', component: Maintain },
+      { path: 'EQPBook', name: 'EQPBook', component: EQPBook },
+      { path: 'Dashboard', name: 'Dashboard', component: Dashboard },
+      { path: 'Trend', name: 'Trend', component: Trend },
+      { path: 'DeptCompare', name: 'DeptCompare', component: DeptCompare },
+      { path: 'UserManage', name: 'UserManage', component: UserManage },
+      { path: 'RoleManage', name: 'RoleManage', component: RoleManage },
+      { path: 'PermissionManage', name: 'PermissionManage', component: PermissionManage },
+      { path: 'Settings', name: 'Settings', component: Settings }
+    ]
+  }
+];
+
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      component: MainLayout,
-      children: [
-        {
-          path: '',
-          name: 'Home',
-          // 主页不需要组件，MainLayout 会显示默认内容
-          component: null
-        },
-        {
-          path: 'Order',
-          name: 'Order',
-          component: Order
-        },
-        {
-          path: 'Dispatch',
-          name: 'Dispatch',
-          component: Dispatch
-        },
-        {
-          path: 'PlanGantt',
-          name: 'PlanGantt',
-          component: PlanGantt
-        },
-        {
-          path: 'Report',
-          name: 'Report',
-          component: Report
-        },
-        {
-          path: 'Notice',
-          name: 'Notice',
-          component: Notice
-        },
-        {
-          path: 'Abnormal',
-          name: 'Abnormal',
-          component: Abnormal
-        },
-        {
-          path: 'QualityInput',
-          name: 'QualityInput',
-          component: QualityInput
-        },
-        {
-          path: 'Trace',
-          name: 'Trace',
-          component: Trace
-        },
-        {
-          path: 'Defect',
-          name: 'Defect',
-          component: Defect
-        },
-        {
-          path: 'EQPState',
-          name: 'EQPState',
-          component: EQPState
-        },
-        {
-          path: 'Maintain',
-          name: 'Maintain',
-          component: Maintain
-        },
-        {
-          path: 'EQPBook',
-          name: 'EQPBook',
-          component: EQPBook
-        },
-        {
-          path: 'Dashboard',
-          name: 'Dashboard',
-          component: Dashboard
-        },
-        {
-          path: 'Trend',
-          name: 'Trend',
-          component: Trend
-        },
-        {
-          path: 'DeptCompare',
-          name: 'DeptCompare',
-          component: DeptCompare
-        },
-        {
-          path: 'UserManage',
-          name: 'UserManage',
-          component: UserManage
-        },
-        {
-          path: 'RoleManage',
-          name: 'RoleManage',
-          component: RoleManage
-        }, 
-        {
-          path: 'UserManage',
-          name: 'UserManage',
-          component: UserManage
-        }, 
-        {
-          path: 'PermissionManage',
-          name: 'PermissionManage',
-          component: PermissionManage
-        }, 
-        {
-          path: 'Settings',
-          name: 'Settings',
-          component: Settings
-        },
-      ]
-    }
-  ]
-})
+  routes
+});
 
-export default router
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token'); // 判断是否已登录
+  if (to.meta.requiresAuth && !token) {
+    // 如果页面需要登录，但没有 token，则跳转登录
+    next({ name: 'Login' });
+  } else if (to.name === 'Login' && token) {
+    // 如果已登录，访问登录页，直接跳主页面
+    next({ path: '/' });
+  } else {
+    next();
+  }
+});
+
+export default router;
