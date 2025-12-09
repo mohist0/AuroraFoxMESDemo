@@ -13,13 +13,13 @@
         <!-- 用户区域 -->
         <div class="user-area">
           <el-avatar :size="30" :src="avatarUrl" class="user-avatar">
-            {{ userName.charAt(0) }}
+            {{ userInitial }}
           </el-avatar>
 
           <el-dropdown trigger="click" @command="handleUserCommand">
             <span class="user-name">
               {{ userName }}
-              <el-icon><arrow-down /></el-icon>
+              <el-icon><ArrowDown /></el-icon>
             </span>
 
             <template #dropdown>
@@ -35,65 +35,36 @@
                     <span>个人中心</span>
                   </div>
                   <el-icon class="dropdown-arrow" :class="{ rotated: showProfileSubmenu }">
-                    <arrow-down />
+                    <ArrowDown />
                   </el-icon>
                 </div>
 
                 <!-- 子菜单 -->
                 <template v-if="showProfileSubmenu">
-                  <el-dropdown-item 
-                    command="user-manage" 
-                    class="submenu-item"
-                    :class="{ active: activeUserCommand === 'user-manage' }"
-                  >
-                    <span class="submenu-content">
-                      <el-icon><User /></el-icon>
-                      <span class="submenu-text">用户管理</span>
-                    </span>
+                  <el-dropdown-item command="user-manage">
+                    <el-icon><User /></el-icon>
+                    用户管理
                   </el-dropdown-item>
-
-                  <el-dropdown-item 
-                    command="role-manage" 
-                    class="submenu-item"
-                    :class="{ active: activeUserCommand === 'role-manage' }"
-                  >
-                    <span class="submenu-content">
-                      <el-icon><Key /></el-icon>
-                      <span class="submenu-text">角色管理</span>
-                    </span>
+                  <el-dropdown-item command="role-manage">
+                    <el-icon><Key /></el-icon>
+                    角色管理
                   </el-dropdown-item>
-
-                  <el-dropdown-item 
-                    command="permission-manage" 
-                    class="submenu-item"
-                    :class="{ active: activeUserCommand === 'permission-manage' }"
-                  >
-                    <span class="submenu-content">
-                      <el-icon><Lock /></el-icon>
-                      <span class="submenu-text">权限管理</span>
-                    </span>
+                  <el-dropdown-item command="permission-manage">
+                    <el-icon><Lock /></el-icon>
+                    权限管理
                   </el-dropdown-item>
                 </template>
 
                 <el-dropdown-divider />
 
-                <!-- 设置 -->
-                <el-dropdown-item 
-                  command="settings"
-                  :class="{ active: activeUserCommand === 'settings' }"
-                >
+                <el-dropdown-item command="settings">
                   <el-icon><Setting /></el-icon>
-                  <span>设置</span>
+                  设置
                 </el-dropdown-item>
 
-                <!-- 注销 -->
-                <el-dropdown-item 
-                  command="logout" 
-                  divided
-                  :class="{ active: activeUserCommand === 'logout' }"
-                >
+                <el-dropdown-item command="logout" divided>
                   <el-icon><SwitchButton /></el-icon>
-                  <span>注销</span>
+                  注销
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -115,7 +86,7 @@
           :collapse="isCollapse"
           @select="handleMenuSelect"
         >
-          <template v-for="(group, index) in menu" :key="group.title">
+          <template v-for="(group, index) in menuData" :key="group.title">
             <el-sub-menu
               v-if="group.children && group.children.length > 0"
               :index="`group-${index}`"
@@ -131,7 +102,7 @@
                   'active-arrow': isGroupActive(index),
                   'rotated': openedGroups.includes(`group-${index}`)
                 }">
-                  <arrow-down />
+                  <ArrowDown />
                 </el-icon>
               </template>
               <el-menu-item
@@ -163,8 +134,8 @@
         <!-- 折叠按钮 -->
         <div class="collapse-btn" @click="toggleCollapse">
           <el-icon :class="{ 'rotate-icon': isCollapse }">
-            <expand v-if="isCollapse" />
-            <fold v-else />
+            <Expand v-if="isCollapse" />
+            <Fold v-else />
           </el-icon>
         </div>
       </el-aside>
@@ -200,6 +171,7 @@
 <script>
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useUserStore } from "@/stores/user";  // <-- 导入 Pinia store
 import {
   Setting,
   User,
@@ -239,10 +211,21 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
+    const userStore = useUserStore();  // <-- 使用 Pinia store
+    
     const showProfileSubmenu = ref(false);
-    const activeUserCommand = ref("");
 
-    const userName = ref(localStorage.getItem("userName") || "未登录");
+    // 使用 Pinia store 中的用户名
+    const userName = computed(() => {
+      const name = userStore.username || localStorage.getItem("userName") || "未登录";
+      console.log("当前用户名:", name, "store中的用户名:", userStore.username);
+      return name;
+    });
+
+    const userInitial = computed(() => {
+      return userName.value.charAt(0).toUpperCase();
+    });
+
     const avatarUrl = ref("");
     const isCollapse = ref(false);
     const activeMenu = ref("");
@@ -257,7 +240,8 @@ export default {
       }));
     });
 
-    const menu = ref([
+    // 菜单数据 - 包含系统管理
+    const menuData = ref([
       {
         title: "生产计划",
         icon: DataBoard,
@@ -302,27 +286,37 @@ export default {
           { name: "趋势分析", route: "Trend", icon: TrendCharts },
           { name: "部门/生产班组对比", route: "DeptCompare", icon: PieChart }
         ]
+      },
+      // 添加系统管理菜单组
+      {
+        title: "系统管理",
+        icon: Setting,
+        children: [
+          { name: "用户管理", route: "UserManage", icon: User },
+          { name: "角色管理", route: "RoleManage", icon: Key },
+          { name: "权限管理", route: "PermissionManage", icon: Lock }
+        ]
       }
     ]);
 
-    // 切换个人中心子菜单
     const toggleProfileSubmenu = () => {
       showProfileSubmenu.value = !showProfileSubmenu.value;
     };
 
-    const isGroupActive = groupIndex => {
+    const isGroupActive = (groupIndex) => {
       if (activeGroupIndex.value === groupIndex) return true;
-      const group = menu.value[groupIndex];
+      const group = menuData.value[groupIndex];
       if (!group || !group.children) return false;
       return group.children.some(child => child.route === activeMenu.value);
     };
 
     watch(
       () => route.name,
-      newRouteName => {
+      (newRouteName) => {
         activeMenu.value = newRouteName || "";
-        for (let i = 0; i < menu.value.length; i++) {
-          const group = menu.value[i];
+        let found = false;
+        for (let i = 0; i < menuData.value.length; i++) {
+          const group = menuData.value[i];
           if (group.children) {
             const child = group.children.find(item => item.route === newRouteName);
             if (child) {
@@ -330,9 +324,13 @@ export default {
               if (!openedGroups.value.includes(`group-${i}`)) {
                 openedGroups.value.push(`group-${i}`);
               }
+              found = true;
               break;
             }
           }
+        }
+        if (!found) {
+          activeGroupIndex.value = null;
         }
       },
       { immediate: true }
@@ -343,6 +341,7 @@ export default {
     };
 
     const goToPage = (routeName, groupIndex) => {
+      if (!routeName) return;
       router.push({ name: routeName });
       if (groupIndex !== undefined) {
         activeGroupIndex.value = groupIndex;
@@ -352,10 +351,10 @@ export default {
       }
     };
 
-    const handleMenuSelect = index => {
+    const handleMenuSelect = (index) => {
       goToPage(index);
-      for (let i = 0; i < menu.value.length; i++) {
-        const group = menu.value[i];
+      for (let i = 0; i < menuData.value.length; i++) {
+        const group = menuData.value[i];
         if (group.children) {
           const child = group.children.find(item => item.route === index);
           if (child) {
@@ -366,42 +365,47 @@ export default {
       }
     };
 
-    const handleUserCommand = command => {
-      activeUserCommand.value = command;
-      
-      switch (command) {
-        case "user-manage":
-          router.push({ name: "UserManage" });
-          break;
-        case "role-manage":
-          router.push({ name: "RoleManage" });
-          break;
-        case "permission-manage":
-          router.push({ name: "PermissionManage" });
-          break;
-        case "settings":
-          router.push({ name: "Settings" });
-          break;
-        case "logout":
-          handleLogout();
-          break;
-      }
-    };
+const handleUserCommand = async (command) => { // 改为 async 函数
+    console.log("执行命令:", command);
+    
+    switch (command) {
+      case "user-manage":
+        router.push({ name: "UserManage" });
+        break;
+      case "role-manage":
+        router.push({ name: "RoleManage" });
+        break;
+      case "permission-manage":
+        router.push({ name: "PermissionManage" });
+        break;
+      case "settings":
+        router.push({ name: "Settings" });
+        break;
+      case "logout":
+        // 不再在这里调用 router.push，因为 logoutUser 中已经处理了
+        await userStore.logoutUser();
+        break;
+    }
+  };
 
-    const handleLogout = () => {
-      localStorage.removeItem("userName");
-      localStorage.removeItem("token");
-      router.push({ name: "Login" });
-    };
+    // 监听 store 中 username 的变化
+    watch(
+      () => userStore.username,
+      (newUsername) => {
+        console.log("用户名变化:", newUsername);
+        // 确保组件重新渲染
+      },
+      { immediate: true }
+    );
 
     return {
       userName,
+      userInitial,
       avatarUrl,
-      menu,
+      menuData,
       isCollapse,
       activeMenu,
       activeGroupIndex,
-      activeUserCommand,
       openedGroups,
       breadcrumb,
       showProfileSubmenu,
@@ -417,14 +421,13 @@ export default {
 </script>
 
 <style scoped>
-/* 布局容器 */
+/* 样式保持不变... */
 .layout-container {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
 }
 
-/* 顶部栏 */
 .top-header {
   height: 60px;
   background: linear-gradient(135deg, #1f2d3d 0%, #324057 100%);
@@ -457,7 +460,6 @@ export default {
   color: #409EFF;
 }
 
-/* 用户区域 */
 .user-area {
   display: flex;
   align-items: center;
@@ -469,6 +471,7 @@ export default {
 .user-avatar {
   background-color: #409EFF;
   color: white;
+  font-weight: bold;
 }
 
 .user-name {
@@ -479,6 +482,7 @@ export default {
   padding: 5px 10px;
   border-radius: 4px;
   transition: background-color 0.3s;
+  font-weight: 500;
 }
 
 .user-name:hover {
@@ -486,7 +490,6 @@ export default {
   color: #409EFF;
 }
 
-/* 下拉菜单标题 */
 .dropdown-title {
   padding: 12px 16px;
   display: flex;
@@ -508,10 +511,6 @@ export default {
   color: #409EFF !important;
 }
 
-.dropdown-title.active .title-content {
-  color: #409EFF !important;
-}
-
 .title-content {
   display: flex;
   align-items: center;
@@ -519,61 +518,21 @@ export default {
   transition: color 0.3s;
 }
 
-.dropdown-title .el-icon {
-  font-size: 16px;
-}
-
-/* 下拉箭头 */
 .dropdown-arrow {
   font-size: 12px;
   transition: transform 0.3s;
   color: #bfcbd9;
 }
 
-.dropdown-title.active .dropdown-arrow {
-  color: #409EFF;
-}
-
 .dropdown-arrow.rotated {
   transform: rotate(180deg);
 }
 
-/* 子菜单项 */
-.submenu-item {
-  padding-left: 40px !important;
-}
-
-.submenu-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.submenu-text {
-  font-size: 13px !important;
-  color: #bfcbd9;
-  transition: color 0.3s;
-}
-
-/* 激活状态样式 */
-.submenu-item.active .submenu-text,
-.el-dropdown-menu__item.active span {
-  color: #409EFF !important;
-}
-
-.submenu-item.active .el-icon,
-.el-dropdown-menu__item.active .el-icon {
-  color: #409EFF !important;
-}
-
-/* 主体部分 */
 .main-wrapper {
   flex: 1;
   overflow: hidden;
 }
 
-/* 侧边栏 */
 .sidebar {
   width: auto;
   background: #1f2d3d;
@@ -603,12 +562,10 @@ export default {
   margin-right: 8px;
 }
 
-/* 隐藏 ElementPlus 的默认箭头 */
 :deep(.el-sub-menu__title .el-sub-menu__icon-arrow) {
   display: none !important;
 }
 
-/* 父菜单箭头图标 */
 .arrow-icon {
   margin-left: auto;
   font-size: 12px;
@@ -624,7 +581,6 @@ export default {
   color: #409EFF !important;
 }
 
-/* 活跃的父菜单组 */
 .active-group :deep(.el-sub-menu__title) {
   background-color: #2d3a4b !important;
 }
@@ -633,7 +589,6 @@ export default {
   color: #409EFF !important;
 }
 
-/* 折叠按钮 */
 .collapse-btn {
   height: 50px;
   display: flex;
@@ -660,7 +615,6 @@ export default {
   transform: rotate(180deg);
 }
 
-/* 内容区域 */
 .content-area {
   padding: 0;
   background: #f0f2f5;
@@ -691,7 +645,6 @@ export default {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* 路由切换动画 */
 .fade-transform-enter-active,
 .fade-transform-leave-active {
   transition: all 0.3s;
@@ -707,7 +660,6 @@ export default {
   transform: translateX(30px);
 }
 
-/* 自定义滚动条 */
 .el-menu-vertical::-webkit-scrollbar,
 .page-content::-webkit-scrollbar {
   width: 6px;
@@ -728,10 +680,7 @@ export default {
 .page-content::-webkit-scrollbar-thumb:hover {
   background: #5a6578;
 }
-</style>
 
-<!-- 全局样式覆盖 -->
-<style>
 /* 修复 ElementPlus 可能造成的全局样式问题 */
 html,
 body {
@@ -742,7 +691,6 @@ body {
   overflow: hidden !important;
 }
 
-/* 自定义 ElMenu 样式 */
 .el-menu-item,
 .el-sub-menu__title {
   height: 50px !important;
@@ -758,7 +706,6 @@ body {
   background-color: #2d3a4b !important;
 }
 
-/* 下拉菜单样式 */
 .el-dropdown-menu {
   background-color: #1f2d3d !important;
   border: 1px solid #2d3a4b !important;
@@ -779,16 +726,6 @@ body {
   background-color: #2d3a4b !important;
 }
 
-/* 激活的下拉菜单项 */
-.el-dropdown-menu__item.active {
-  background-color: #2d3a4b !important;
-  color: #409EFF !important;
-}
-
-.el-dropdown-menu__item.active:hover {
-  background-color: #2d3a4b !important;
-}
-
 .el-dropdown-menu__item .el-icon {
   font-size: 16px !important;
   width: 16px !important;
@@ -796,23 +733,11 @@ body {
   transition: color 0.3s;
 }
 
-/* 分隔线样式 */
 .el-dropdown-divider {
   margin: 6px 0 !important;
   background-color: #2d3a4b !important;
 }
 
-/* 主菜单项图标 */
-.el-dropdown-menu__item .el-icon {
-  font-size: 16px;
-}
-
-/* 子菜单项图标 */
-.submenu-item .el-icon {
-  font-size: 14px !important;
-}
-
-/* 面包屑样式 */
 .el-breadcrumb__inner,
 .el-breadcrumb__separator {
   color: #909399 !important;
