@@ -8,34 +8,31 @@ export const useUserStore = defineStore("user", {
         roleId: "",
         roleName: "",
         permissions: [],
+        menus: []        // ← 新增：左侧菜单
     }),
+
     actions: {
         async loginUser({ username, password, roleId }) {
-            try {
-                const res = await login({ username, password, roleId });
-                console.log("登录接口返回：", res);
 
-                // 后端返回 token 在 res.data.token
-                const data = res.data || res;
-                this.token = data.token;
-                this.username = username;
-                this.roleId = data.roleId;
-                this.roleName = data.roleName;
-                this.permissions = data.permissions || [];
-                localStorage.setItem("token", data.token);
-            } catch (err) {
-                console.error("登录失败", err);
-                throw err;
-            }
+            const res = await login({ username, password, roleId });
+            const data = res.data ?? res;
+
+            console.log("登录返回：", data);
+
+            this.token = data.token;
+            this.username = data.username;
+            this.roleId = data.roleId;
+            this.roleName = data.roleName;
+            this.permissions = data.permissions || [];
+            this.menus = data.menus || [];      // ← 保存菜单
+
+            localStorage.setItem("token", data.token);
         },
+
         async logoutUser() {
-            if (this.token) await logout(this.token);
-            this.token = "";
-            this.username = "";
-            this.roleId = "";
-            this.roleName = "";
-            this.permissions = [];
+            await logout();
+            this.$reset();
             localStorage.removeItem("token");
-        },
+        }
     },
 });
