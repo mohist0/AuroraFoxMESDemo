@@ -51,55 +51,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+                                    FilterChain chain) throws IOException, ServletException {
 
-        // 从请求头获取 Token
         String authHeader = request.getHeader("Authorization");
-        String token = null;
-        String username = null;
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7); // 去掉 "Bearer " 前缀
-            username = jwtTokenProvider.getUsernameFromToken(token);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            chain.doFilter(request, response);   // 无 Token 直接放过
+            return;
         }
 
-        // 验证 Token 并设置认证信息
+        String token = authHeader.substring(7);
+        String username = jwtTokenProvider.getUsernameFromToken(token);
+
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
-            // 校验 Token 有效性 + 黑名单检查
             if (jwtTokenProvider.validateToken(token, userDetails)
                     && !authService.isTokenBlacklisted(token)) {
 
-                // 从 Token 中解析角色信息
                 String role = jwtTokenProvider.getRoleFromToken(token);
-
-                // 从 Token 中解析权限列表
                 List<String> permissions = jwtTokenProvider.getPermissionsFromToken(token);
 
-                // 构造权限集合：包含角色和权限
                 List<GrantedAuthority> authorities = new ArrayList<>();
-                authorities.add((GrantedAuthority) () -> role); // 注入角色
+                authorities.add((GrantedAuthority) () -> role);
                 permissions.forEach(p -> authorities.add((GrantedAuthority) () -> p));
 
-                // 构造认证对象
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                authorities
-                        );
-
-                // 设置请求详情（IP、Session 等）
+                        new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // 将认证信息放入 SecurityContext
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
-
-        // 继续执行过滤链
-        filterChain.doFilter(request, response);
+        chain.doFilter(request, response);
     }
 }

@@ -1,10 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginForm from '../components/LoginForm.vue'
+import MainLayout from '../components/MainLayout.vue'
 import Order from '../views/ProductionPlan/Order.vue'
 
 const routes = [
-  { path: '/', name: 'Login', component: LoginForm },   
-  { path: '/order', name: 'Order', component: Order, meta: { auth: true } }
+  // 1. 登录页
+  { path: '/login', name: 'Login', component: LoginForm, meta: { guest: true } },
+
+  // 2. 带布局的父路由，重定向到默认子页
+  {
+    path: '/',
+    component: MainLayout,
+    redirect: '/order',
+    meta: { auth: true },
+    children: [
+      { path: 'order', name: 'Order', component: Order }
+      // 以后其他业务页继续往 children 里加
+    ]
+  }
 ]
 
 const router = createRouter({
@@ -15,8 +28,8 @@ const router = createRouter({
 /* 登录态拦截 */
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  if (to.meta.auth && !token) return next('/login')   // 需要登录却没登录
-  if (to.meta.guest && token) return next('/')        // 已登录就别再进登录页
+  if (to.meta.auth && !token) return next('/login')
+  if (to.meta.guest && token) return next('/')
   next()
 })
 
