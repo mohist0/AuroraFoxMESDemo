@@ -38,8 +38,8 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 // 全局配置 Axios（可选）
 // 通常建议在具体的 store 或组件中导入使用，而不是全局挂载
 // 但如果需要全局挂载，可以这样：
-// import axios from 'axios'
-// app.config.globalProperties.$axios = axios
+import axios from 'axios'
+app.config.globalProperties.$axios = axios
 
 // 全局配置 ECharts（可选）
 // import * as echarts from 'echarts'

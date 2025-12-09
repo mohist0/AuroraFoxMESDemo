@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Swagger 文档相关路径放行
                         .requestMatchers(
+                                "HttpMethod.OPTIONS, \"/**\"",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
@@ -60,6 +61,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/permission/**").permitAll()
                         // 生产订单模块接口临时放行
                         .requestMatchers("/api/productionorder/**").permitAll()
+
+                        .requestMatchers("/api/role/**").permitAll()
                         // 其他接口需要认证
                         .anyRequest().authenticated()
                 )
