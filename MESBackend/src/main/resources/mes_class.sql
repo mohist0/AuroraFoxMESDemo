@@ -303,6 +303,21 @@ CREATE TABLE material
     update_time   DATETIME COMMENT '更新时间'
 ) COMMENT ='物料信息表';
 
+-- 如果存在旧的device表则删除
+DROP TABLE IF EXISTS device;
+
+-- 创建设备表
+CREATE TABLE device
+(
+    device_id   VARCHAR(50) PRIMARY KEY COMMENT '设备编号',
+    device_name VARCHAR(100) NOT NULL COMMENT '设备名称',
+    line_id     VARCHAR(50)  NOT NULL COMMENT '所属生产线编号',
+    device_desc TEXT COMMENT '设备说明',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME COMMENT '更新时间',
+    CONSTRAINT fk_device_line FOREIGN KEY (line_id) REFERENCES production_line (line_id)
+) COMMENT ='设备信息表';
+
 -- 如果存在旧的production_schedule表则删除
 DROP TABLE IF EXISTS production_schedule;
 
@@ -324,7 +339,10 @@ CREATE TABLE production_schedule
     -- 生产线编号，外键关联 production_line.line_id
     line_id            VARCHAR(50) NOT NULL COMMENT '生产线编号',
 
-    -- 物料编号，外键关联 material.material_id
+    -- 设备编号，外键关联 device 表，更新时级联，删除时设为NULL
+    device_id          VARCHAR(50) COMMENT '设备编号',
+
+    -- 物料编号，外键关联 material 表
     material_id        VARCHAR(50) NOT NULL COMMENT '物料编号',
 
     -- 计划开工时间
@@ -342,7 +360,7 @@ CREATE TABLE production_schedule
     -- 备注
     remark             TEXT COMMENT '备注',
 
-    -- 创建时间
+    -- 创建时间，默认为当前时间
     create_time        DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 
     -- 更新时间
@@ -361,7 +379,10 @@ CREATE TABLE production_schedule
     CONSTRAINT fk_schedule_line FOREIGN KEY (line_id) REFERENCES production_line (line_id),
 
     -- 外键约束：物料编号关联 material 表
-    CONSTRAINT fk_schedule_material FOREIGN KEY (material_id) REFERENCES material (material_id)
+    CONSTRAINT fk_schedule_material FOREIGN KEY (material_id) REFERENCES material (material_id),
+
+    -- 外键约束：设备编号关联 device 表，更新时级联，删除时设为NULL
+    CONSTRAINT fk_schedule_device FOREIGN KEY (device_id) REFERENCES device (device_id) ON UPDATE CASCADE ON DELETE SET NULL
 ) COMMENT ='生产排程信息表';
 
 -- 插入角色数据
@@ -425,10 +446,10 @@ VALUES ('W001', 'O001', 'PR001', 500, 300, 100, '生产中', '2025-12-01 08:00:0
         '2025-12-01 09:00:00', NULL, 'L001', '首批工单，分配到生产线A', NOW());
 
 -- 插入生产排程数据
-INSERT INTO production_schedule (schedule_id, work_order_id, order_id, product_id, line_id, material_id,
+INSERT INTO production_schedule (schedule_id, work_order_id, order_id, product_id, line_id, device_id, material_id,
                                  planned_start_time, planned_end_time, actual_start_time, actual_end_time, remark,
                                  create_time)
-VALUES ('S001', 'W001', 'O001', 'PR001', 'L001', 'M001', '2025-12-01 08:00:00', '2025-12-15 18:00:00',
+VALUES ('S001', 'W001', 'O001', 'PR001', 'L001', NULL, 'M001', '2025-12-01 08:00:00', '2025-12-15 18:00:00',
         '2025-12-01 09:00:00', NULL, '排程使用硅晶圆作为主要物料', NOW());
 
 -- 插入初始管理员用户 AuroraFox

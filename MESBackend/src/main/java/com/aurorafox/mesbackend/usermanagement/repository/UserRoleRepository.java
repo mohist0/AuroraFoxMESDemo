@@ -14,4 +14,6 @@ import java.util.List;
 public interface UserRoleRepository extends JpaRepository<UserRole, String> {
     // 根据用户ID查询角色绑定关系
     List<UserRole> findByUserId(String userId);
+
+    List<UserRole> findByRoleId(String roleId);
 }
