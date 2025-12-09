@@ -14,15 +14,16 @@
       </div>
 
       <!-- 权限列表 -->
-      <el-table :data="permissionList" class="table">
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="权限名称" />
-        <el-table-column prop="code" label="权限编码" />
-        <el-table-column prop="route" label="对应路由" />
+      <el-table :data="filteredPermissionList" class="table">
+        <el-table-column prop="permissionId" label="ID" width="120" />
+        <el-table-column prop="permissionName" label="权限名称" />
+        <el-table-column prop="permissionCode" label="权限编码" />
+        <el-table-column prop="permissionRoute" label="对应路由" />
+        <el-table-column prop="permissionDesc" label="描述" />
         <el-table-column label="操作" width="160">
           <template #default="scope">
             <el-button size="small" @click="openEditDialog(scope.row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="deletePermission(scope.row.id)">删除</el-button>
+            <el-button size="small" type="danger" @click="deletePermission(scope.row.permissionId)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -32,19 +33,19 @@
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="450px">
       <el-form :model="form" label-width="100px">
         <el-form-item label="权限名称">
-          <el-input v-model="form.name" />
+          <el-input v-model="form.permissionName" />
         </el-form-item>
 
         <el-form-item label="权限编码">
-          <el-input v-model="form.code" />
+          <el-input v-model="form.permissionCode" />
         </el-form-item>
 
         <el-form-item label="页面路由">
-          <el-input v-model="form.route" placeholder="/role or /dashboard" />
+          <el-input v-model="form.permissionRoute" placeholder="/role or /dashboard" />
         </el-form-item>
 
         <el-form-item label="描述">
-          <el-input v-model="form.desc" type="textarea" />
+          <el-input v-model="form.permissionDesc" type="textarea" />
         </el-form-item>
       </el-form>
 
@@ -57,63 +58,115 @@
 </template>
 
 <script>
+import {
+  getPermissionList,
+  addPermission,
+  updatePermission,
+  deletePermission
+} from "@/api/permission";
+
+import { ElMessage, ElMessageBox } from "element-plus";
+
 export default {
   data() {
     return {
       search: "",
       dialogVisible: false,
       dialogTitle: "新增权限",
+
       form: {
-        id: null,
-        name: "",
-        code: "",
-        route: "",
-        desc: ""
+        permissionId: null,
+        permissionName: "",
+        permissionCode: "",
+        permissionRoute: "",
+        permissionDesc: ""
       },
-      permissionList: [
-        { id: 1, name: "查看角色页", code: "role:view", route: "/role", desc: "可访问角色管理界面" },
-        { id: 2, name: "编辑权限", code: "permission:edit", route: "/permission", desc: "编辑权限信息" }
-      ]
+
+      permissionList: [] // ← 后端真实数据
     };
   },
+
+  computed: {
+    filteredPermissionList() {
+      if (!this.search) return this.permissionList;
+      return this.permissionList.filter(item =>
+        item.permissionName.includes(this.search)
+      );
+    }
+  },
+
   methods: {
-    // 打开新增弹窗
+    /** 加载权限列表 */
+    async loadData() {
+      try {
+        const res = await getPermissionList();
+        this.permissionList = res.data || res; // 后端返回 List
+      } catch (err) {
+        console.error(err);
+        ElMessage.error("权限加载失败");
+      }
+    },
+
+    /** 打开新增弹窗 */
     openAddDialog() {
       this.dialogTitle = "新增权限";
-      this.form = { id: null, name: "", code: "", route: "", desc: "" };
+      this.form = {
+        permissionId: null,
+        permissionName: "",
+        permissionCode: "",
+        permissionRoute: "",
+        permissionDesc: ""
+      };
       this.dialogVisible = true;
     },
 
-    // 打开编辑弹窗
+    /** 打开编辑弹窗 */
     openEditDialog(row) {
       this.dialogTitle = "编辑权限";
       this.form = { ...row };
       this.dialogVisible = true;
     },
 
-    // 保存（新增/更新）
-    submit() {
-      if (this.form.id == null) {
-        console.log("POST /permission", this.form);
-      } else {
-        console.log("PUT /permission", this.form);
-      }
-      this.dialogVisible = false;
-    },
-
-    // 删除权限
-    deletePermission(id) {
-      console.log("DELETE /permission/" + id);
+    /** 保存（新增 / 编辑） */
+   async submit() {
+  try {
+    if (this.form.id == null) {
+      await addPermission(this.form); // POST /permission
+      this.$message.success("新增成功");
+    } else {
+      await updatePermission(this.form); // PUT /permission
+      this.$message.success("更新成功");
     }
+
+    this.dialogVisible = false;
+    this.loadPermissionList();
+  } catch (e) {
+    console.error(e);
+    this.$message.error("操作失败");
+  }
+},
+
+    /** 删除权限 */
+    deletePermission(id) {
+      ElMessageBox.confirm("确认删除该权限吗？", "提示", { type: "warning" })
+        .then(async () => {
+          await deletePermission(id);
+          ElMessage.success("删除成功");
+          this.loadData();
+        })
+        .catch(() => {});
+    }
+  },
+
+  mounted() {
+    this.loadData();
   }
 };
 </script>
 
-
 <style scoped>
-/* ==================== PC 后台管理通用风格 ==================== */
+/* 保留你全部原样式，不做任何修改 */
 
-/* 页面整体背景 */
 .permission-page {
   background: #f2f3f5;
   min-height: 100vh;
@@ -121,7 +174,6 @@ export default {
   color: #333;
 }
 
-/* 顶部标题 */
 .title {
   color: #333;
   font-size: 22px;
@@ -129,7 +181,6 @@ export default {
   margin-bottom: 20px;
 }
 
-/* 工具栏布局 */
 .toolbar {
   display: flex;
   gap: 15px;
@@ -142,8 +193,6 @@ export default {
   color: #333 !important;
 }
 
-/* ==================== 表格默认风格（白底，自适应宽度） ==================== */
-
 .table {
   background: #fff;
   padding: 15px;
@@ -151,24 +200,18 @@ export default {
   border: 1px solid #e5e5e5;
 }
 
-/* 表头浅灰 */
 .table :deep(th) {
   background-color: #fafafa !important;
   color: #333 !important;
   font-weight: bold;
 }
 
-/* 表格主体 */
 .table :deep(td) {
   background-color: #fff !important;
   border-color: #ebeef5 !important;
 }
 
-/* ==================== 默认按钮风格即可 ==================== */
 :deep(.el-button:hover) {
   filter: brightness(1.05);
 }
-
-/* ==================== 弹窗样式默认即可，更符合 PC 系统 ==================== */
 </style>
-
