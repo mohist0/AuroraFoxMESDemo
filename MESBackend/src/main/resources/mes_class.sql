@@ -473,22 +473,3 @@ VALUES (UUID(), 'U001', 'R004', NOW());
 
 -- 所有表定义完成后重新开启外键检查
 SET FOREIGN_KEY_CHECKS = 1;
-
--- 1. 关闭外键检查，避免中途约束冲突
-SET FOREIGN_KEY_CHECKS = 0;
-
--- 2. 生成新用户 admin（密码 123456，使用与 AuroraFox 相同的盐值）
-INSERT INTO users (user_id, user_name, user_password, salt_value, last_login_time, create_time)
-VALUES ('U002', 'admin',
-        '5b4e06d26456f8309e65fa1428465fc4becf2fe1eb585ba01912a047a9b93178', -- 与 AuroraFox 相同密文
-        '4e24fbc05f3775cbcecac324af29799f',                                   -- 与 AuroraFox 相同盐值
-        NULL, NOW());
-
--- 3. 一次性把 AuroraFox 的 3 个角色全部赋给 admin
-INSERT INTO user_role (ur_id, user_id, role_id, create_time)
-SELECT UUID(), 'U002', role_id, NOW()
-FROM user_role
-WHERE user_id = 'U001';
-
--- 4. 重新打开外键检查
-SET FOREIGN_KEY_CHECKS = 1;
