@@ -24,7 +24,7 @@
 
             <template #dropdown>
               <el-dropdown-menu>
-                <!-- 个人中心标题 - 可点击展开/收起 -->
+                <!-- 个人中心标题 -->
                 <div 
                   class="dropdown-title" 
                   :class="{ active: showProfileSubmenu }"
@@ -55,7 +55,10 @@
                   </el-dropdown-item>
                 </template>
 
-                <el-dropdown-divider />
+                <!-- 修复：使用 el-dropdown-item 代替 el-dropdown-divider -->
+                <el-dropdown-item disabled divided style="padding: 0; height: 1px; margin: 6px 0;">
+                  <div style="border-top: 1px solid #2d3a4b;"></div>
+                </el-dropdown-item>
 
                 <el-dropdown-item command="settings">
                   <el-icon><Setting /></el-icon>
@@ -91,7 +94,6 @@
               v-if="group.children && group.children.length > 0"
               :index="`group-${index}`"
               :class="{ 'active-group': isGroupActive(index) }"
-              :show-arrow="false"
             >
               <template #title>
                 <el-icon v-if="group.icon" class="menu-icon">
@@ -148,19 +150,15 @@
             <el-breadcrumb-item
               v-for="(item, index) in breadcrumb"
               :key="index"
-              :to="item.path ? { path: item.path } : undefined"
+              :to="item.path ? { path: '/' + item.path } : undefined"
             >
               {{ item.title }}
             </el-breadcrumb-item>
           </el-breadcrumb>
 
-          <!-- 页面内容 -->
+          <!-- 页面内容 - 必须有 router-view -->
           <div class="page-content">
-            <router-view v-slot="{ Component }">
-              <transition name="fade-transform" mode="out-in">
-                <component :is="Component" />
-              </transition>
-            </router-view>
+            <router-view />
           </div>
         </div>
       </el-main>
@@ -169,9 +167,9 @@
 </template>
 
 <script>
-import { ref, computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useUserStore } from "../stores/user";  // <-- 导入 Pinia store
+import { ref, computed, watch } from "vue"
+import { useRoute, useRouter } from "vue-router"
+import { useUserStore } from "../stores/user"
 import {
   Setting,
   User,
@@ -194,7 +192,7 @@ import {
   Edit,
   Key,
   Lock
-} from "@element-plus/icons-vue";
+} from "@element-plus/icons-vue"
 
 export default {
   name: "MainLayout",
@@ -209,38 +207,35 @@ export default {
     Lock
   },
   setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const userStore = useUserStore();  // <-- 使用 Pinia store
+    const route = useRoute()
+    const router = useRouter()
+    const userStore = useUserStore()
     
-    const showProfileSubmenu = ref(false);
+    const showProfileSubmenu = ref(false)
 
-    // 使用 Pinia store 中的用户名
+    // 修复：优先使用 store 中的用户名，并确保响应式
     const userName = computed(() => {
-      const name = userStore.username || localStorage.getItem("userName") || "未登录";
-      console.log("当前用户名:", name, "store中的用户名:", userStore.username);
-      return name;
-    });
+      return userStore.username || localStorage.getItem("username") || "未登录"
+    })
 
     const userInitial = computed(() => {
-      return userName.value.charAt(0).toUpperCase();
-    });
+      return userName.value.charAt(0).toUpperCase()
+    })
 
-    const avatarUrl = ref("");
-    const isCollapse = ref(false);
-    const activeMenu = ref("");
-    const activeGroupIndex = ref(null);
-    const openedGroups = ref([]);
+    const avatarUrl = ref("")
+    const isCollapse = ref(false)
+    const activeMenu = ref("")
+    const activeGroupIndex = ref(null)
+    const openedGroups = ref([])
 
     const breadcrumb = computed(() => {
-      const matched = route.matched.filter(item => item.meta && item.meta.title);
+      const matched = route.matched.filter(item => item.meta && item.meta.title)
       return matched.map(item => ({
         title: item.meta.title,
         path: item.path
-      }));
-    });
+      }))
+    })
 
-    // 菜单数据 - 包含系统管理
     const menuData = ref([
       {
         title: "生产计划",
@@ -284,10 +279,9 @@ export default {
         children: [
           { name: "总览看板", route: "Dashboard", icon: DataBoard },
           { name: "趋势分析", route: "Trend", icon: TrendCharts },
-          { name: "部门/生产班组对比", route: "DeptCompare", icon: PieChart }
+          { name: "部门对比", route: "DeptCompare", icon: PieChart }
         ]
       },
-      // 添加系统管理菜单组
       {
         title: "系统管理",
         icon: Setting,
@@ -297,106 +291,94 @@ export default {
           { name: "权限管理", route: "PermissionManage", icon: Lock }
         ]
       }
-    ]);
+    ])
 
     const toggleProfileSubmenu = () => {
-      showProfileSubmenu.value = !showProfileSubmenu.value;
-    };
+      showProfileSubmenu.value = !showProfileSubmenu.value
+    }
 
     const isGroupActive = (groupIndex) => {
-      if (activeGroupIndex.value === groupIndex) return true;
-      const group = menuData.value[groupIndex];
-      if (!group || !group.children) return false;
-      return group.children.some(child => child.route === activeMenu.value);
-    };
+      if (activeGroupIndex.value === groupIndex) return true
+      const group = menuData.value[groupIndex]
+      if (!group || !group.children) return false
+      return group.children.some(child => child.route === activeMenu.value)
+    }
 
     watch(
       () => route.name,
       (newRouteName) => {
-        activeMenu.value = newRouteName || "";
-        let found = false;
+        activeMenu.value = newRouteName || ""
+        let found = false
         for (let i = 0; i < menuData.value.length; i++) {
-          const group = menuData.value[i];
+          const group = menuData.value[i]
           if (group.children) {
-            const child = group.children.find(item => item.route === newRouteName);
+            const child = group.children.find(item => item.route === newRouteName)
             if (child) {
-              activeGroupIndex.value = i;
+              activeGroupIndex.value = i
               if (!openedGroups.value.includes(`group-${i}`)) {
-                openedGroups.value.push(`group-${i}`);
+                openedGroups.value.push(`group-${i}`)
               }
-              found = true;
-              break;
+              found = true
+              break
             }
           }
         }
         if (!found) {
-          activeGroupIndex.value = null;
+          activeGroupIndex.value = null
         }
       },
       { immediate: true }
-    );
+    )
 
     const toggleCollapse = () => {
-      isCollapse.value = !isCollapse.value;
-    };
+      isCollapse.value = !isCollapse.value
+    }
 
     const goToPage = (routeName, groupIndex) => {
-      if (!routeName) return;
-      router.push({ name: routeName });
+      if (!routeName) return
+      router.push({ name: routeName })
       if (groupIndex !== undefined) {
-        activeGroupIndex.value = groupIndex;
+        activeGroupIndex.value = groupIndex
         if (!openedGroups.value.includes(`group-${groupIndex}`)) {
-          openedGroups.value.push(`group-${groupIndex}`);
+          openedGroups.value.push(`group-${groupIndex}`)
         }
       }
-    };
+    }
 
     const handleMenuSelect = (index) => {
-      goToPage(index);
+      goToPage(index)
       for (let i = 0; i < menuData.value.length; i++) {
-        const group = menuData.value[i];
+        const group = menuData.value[i]
         if (group.children) {
-          const child = group.children.find(item => item.route === index);
+          const child = group.children.find(item => item.route === index)
           if (child) {
-            activeGroupIndex.value = i;
-            break;
+            activeGroupIndex.value = i
+            break
           }
         }
       }
-    };
-
-const handleUserCommand = async (command) => { // 改为 async 函数
-    console.log("执行命令:", command);
-    
-    switch (command) {
-      case "user-manage":
-        router.push({ name: "UserManage" });
-        break;
-      case "role-manage":
-        router.push({ name: "RoleManage" });
-        break;
-      case "permission-manage":
-        router.push({ name: "PermissionManage" });
-        break;
-      case "settings":
-        router.push({ name: "Settings" });
-        break;
-      case "logout":
-        // 不再在这里调用 router.push，因为 logoutUser 中已经处理了
-        await userStore.logoutUser();
-        break;
     }
-  };
 
-    // 监听 store 中 username 的变化
-    watch(
-      () => userStore.username,
-      (newUsername) => {
-        console.log("用户名变化:", newUsername);
-        // 确保组件重新渲染
-      },
-      { immediate: true }
-    );
+    const handleUserCommand = async (command) => {
+      switch (command) {
+        case "user-manage":
+          router.push({ name: "UserManage" })
+          break
+        case "role-manage":
+          router.push({ name: "RoleManage" })
+          break
+        case "permission-manage":
+          router.push({ name: "PermissionManage" })
+          break
+        case "settings":
+          router.push({ name: "Dashboard" })
+          break
+        case "logout":
+          await userStore.logoutUser()
+          router.push({ name: "Login" })
+          break
+      }
+    }
 
     return {
       userName,
@@ -415,13 +397,13 @@ const handleUserCommand = async (command) => { // 改为 async 函数
       goToPage,
       handleMenuSelect,
       handleUserCommand
-    };
+    }
   }
-};
+}
 </script>
 
+
 <style scoped>
-/* 样式保持不变... */
 .layout-container {
   height: 100vh;
   width: 100vw;

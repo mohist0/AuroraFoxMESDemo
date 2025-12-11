@@ -31,12 +31,13 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
-import { useUserStore } from "../stores/user";
-import { useRouter } from "vue-router";
+import { reactive, ref } from "vue"
+import { useUserStore } from "../stores/user"
+import { useRouter, useRoute } from "vue-router"
 
-const router = useRouter();
-const userStore = useUserStore();
+const router = useRouter()
+const route = useRoute()
+const userStore = useUserStore()
 
 const roles = [
   { id: "R001", name: "管理层" },
@@ -44,37 +45,40 @@ const roles = [
   { id: "R003", name: "设备管理员" },
   { id: "R004", name: "生产计划员" },
   { id: "R005", name: "车间操作员" },
-  { id: "R006", name: "质检人员" },
-];
+  { id: "R006", name: "质检人员" }
+]
 
 const form = reactive({
   username: "",
   password: "",
-  roleId: "",
-});
+  roleId: ""
+})
 
-const loading = ref(false);
+const loading = ref(false)
 
 async function handleSubmit() {
-  if (!form.username.trim()) return alert("请输入账号");
-  if (!form.password) return alert("请输入密码");
-  if (!form.roleId) return alert("请选择角色");
+  if (!form.username.trim() || !form.password || !form.roleId) {
+    alert("请填写完整信息")
+    return
+  }
 
-  loading.value = true;
+  loading.value = true
   try {
-    await userStore.loginUser(form);
-    alert("登录成功！");
-    router.push("/");// 自动跳转页面
+    await userStore.loginUser(form)
+    alert("登录成功！")
+    
+    // 跳转到之前想访问的页面或首页
+    const redirectPath = route.query.redirect || '/'
+    router.push(redirectPath)
   } catch (e) {
-    alert("登录失败：" + (e.response?.data?.message || e.message));
+    alert("登录失败：" + (e.response?.data?.message || e.message || '未知错误'))
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 </script>
 
 <style scoped>
-/* 整页居中，不再影响全局 body（重要） */
 .login-page {
   width: 100vw;
   height: 100vh;
@@ -84,7 +88,6 @@ async function handleSubmit() {
   justify-content: center;
 }
 
-/* 登录框 */
 .login-form {
   width: 360px;
   padding: 40px 35px;
@@ -95,7 +98,6 @@ async function handleSubmit() {
   flex-direction: column;
 }
 
-/* 标题 */
 .title {
   text-align: center;
   margin-bottom: 25px;
@@ -114,7 +116,6 @@ label {
   margin-bottom: 8px;
 }
 
-/* 输入框 */
 input,
 select {
   width: 100%;
@@ -136,7 +137,6 @@ select:focus {
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
 }
 
-/* 登录按钮 */
 .login-btn {
   height: 42px;
   background: #409eff;

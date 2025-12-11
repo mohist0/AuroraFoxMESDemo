@@ -15,10 +15,10 @@ import RoleManage from '../components/UserManage/RoleManage.vue'
 
 //生产计划里面的组件
 import Order from '../components/ProductionPlan/Order.vue'
+import Dispatch from '../components/ProductionPlan/Dispatch.vue'
+import PlanGantt from '../components/ProductionPlan/PlanGantt.vue'
 
-
-import Dispatch from '../views/ProductionPlan/Dispatch.vue'
-import PlanGantt from '../views/ProductionPlan/PlanGantt.vue'
+//未完成的组件
 import Report from '../views/ProductionExecution/Report.vue'
 import Notice from '../views/ProductionExecution/Notice.vue'
 import Abnormal from '../views/ProductionExecution/Abnormal.vue'
@@ -32,25 +32,31 @@ import Dashboard from '../views/DataDashboard/Dashboard.vue'
 import Trend from '../views/DataDashboard/Trend.vue'
 import DeptCompare from '../views/DataDashboard/DeptCompare.vue'
 
-import Settings from '../views/Main/Settings.vue'
-
 
 const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: LoginForm
+    component: LoginForm,
+    meta: { isPublic: true } // 标记为公开路由
+  },
+  {
+    path: '/layout',
+    name: 'Layout',
+    component: Layout,
   },
   {
     path: '/',
     component: MainLayout,
-    meta: { requiresAuth: true }, // 主页面需要登录
-    children: [
+    meta: { requiresAuth: true }, // 需要登录
+    redirect: '/order',
+     children: [
       { path: '', name: 'Home', component: null },
-      // 生产计划中的组件lu
+      // 生产计划中的组件
       { path: 'Order', name: 'Order', component: Order },
       { path: 'Dispatch', name: 'Dispatch', component: Dispatch },
       { path: 'PlanGantt', name: 'PlanGantt', component: PlanGantt },
+      //未完成的组件
       { path: 'Report', name: 'Report', component: Report },
       { path: 'Notice', name: 'Notice', component: Notice },
       { path: 'Abnormal', name: 'Abnormal', component: Abnormal },
@@ -63,31 +69,39 @@ const routes = [
       { path: 'Dashboard', name: 'Dashboard', component: Dashboard },
       { path: 'Trend', name: 'Trend', component: Trend },
       { path: 'DeptCompare', name: 'DeptCompare', component: DeptCompare },
+      //系统管理的组件
       { path: 'UserManage', name: 'UserManage', component: UserManage },
       { path: 'RoleManage', name: 'RoleManage', component: RoleManage },
       { path: 'PermissionManage', name: 'PermissionManage', component: PermissionManage },
-      { path: 'Settings', name: 'Settings', component: Settings }
     ]
+  },
+  {
+    path: '/:pathMatch(.*)*', // 404 处理
+    redirect: '/login'
   }
-];
+]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
-});
+})
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token'); // 判断是否已登录
-  if (to.meta.requiresAuth && !token) {
-    // 如果页面需要登录，但没有 token，则跳转登录
-    next({ name: 'Login' });
-  } else if (to.name === 'Login' && token) {
-    // 如果已登录，访问登录页，直接跳主页面
-    next({ path: '/' });
-  } else {
-    next();
+  const token = localStorage.getItem('token')
+  
+  // 已登录但访问登录页，跳转到首页
+  if (to.name === 'Login' && token) {
+    return next('/')
   }
-});
+  
+  // 需要登录但未登录，跳转到登录页
+  if (to.meta.requiresAuth && !token) {
+    return next({ name: 'Login', query: { redirect: to.fullPath } })
+  }
+  
+  next()
+})
 
-export default router;
+export default router
+
