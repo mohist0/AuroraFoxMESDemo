@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 //登录页面
 import LoginForm from '../components/LoginForm.vue'
 
+//退出登录
+import Layout from '../components/Layout.vue'
+
 // 主界面
 import MainLayout from '../components/MainLayout.vue'
 
