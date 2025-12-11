@@ -1,6 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
+// 主界面
 import MainLayout from '../components/MainLayout.vue'
-import Order from '../views/ProductionPlan/Order.vue'
+
+// 个人中心里的组件
+import UserManage from '../components/UserManage/UserManage.vue'
+import PermissionManage from '../components/UserManage/PermissionManage.vue'
+import RoleManage from '../components/UserManage/RoleManage.vue'
+
+
 import Dispatch from '../views/ProductionPlan/Dispatch.vue'
 import PlanGantt from '../views/ProductionPlan/PlanGantt.vue'
 import Report from '../views/ProductionExecution/Report.vue'
@@ -15,12 +22,10 @@ import EQPBook from '../views/DeviceManagement/EQPBook.vue'
 import Dashboard from '../views/DataDashboard/Dashboard.vue'
 import Trend from '../views/DataDashboard/Trend.vue'
 import DeptCompare from '../views/DataDashboard/DeptCompare.vue'
-import UserManage from '../views/Main/UserManage.vue'
-import RoleManage from '../views/Main/RoleManage.vue'
-import PermissionManage from '../views/Main/PermissionManage.vue'
+
 import Settings from '../views/Main/Settings.vue'
 import LoginForm from '../components/LoginForm.vue'
-
+import Order from '../views/ProductionPlan/Order.vue'
 const routes = [
   {
     path: '/login',

@@ -171,7 +171,7 @@
 <script>
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useUserStore } from "@/stores/user";  // <-- 导入 Pinia store
+import { useUserStore } from "../stores/user";  // <-- 导入 Pinia store
 import {
   Setting,
   User,
