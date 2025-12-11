@@ -7,6 +7,8 @@ import UserManage from '../components/UserManage/UserManage.vue'
 import PermissionManage from '../components/UserManage/PermissionManage.vue'
 import RoleManage from '../components/UserManage/RoleManage.vue'
 
+//生产计划里面的组件
+import Order from '../components/ProductionPlan/Order.vue'
 
 import Dispatch from '../views/ProductionPlan/Dispatch.vue'
 import PlanGantt from '../views/ProductionPlan/PlanGantt.vue'
@@ -25,7 +27,7 @@ import DeptCompare from '../views/DataDashboard/DeptCompare.vue'
 
 import Settings from '../views/Main/Settings.vue'
 import LoginForm from '../components/LoginForm.vue'
-import Order from '../views/ProductionPlan/Order.vue'
+
 const routes = [
   {
     path: '/login',
@@ -38,6 +40,7 @@ const routes = [
     meta: { requiresAuth: true }, // 主页面需要登录
     children: [
       { path: '', name: 'Home', component: null },
+      // 生产计划中的组件lu
       { path: 'Order', name: 'Order', component: Order },
       { path: 'Dispatch', name: 'Dispatch', component: Dispatch },
       { path: 'PlanGantt', name: 'PlanGantt', component: PlanGantt },
