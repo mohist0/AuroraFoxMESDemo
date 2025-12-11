@@ -1,4 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
+//登录页面
+import LoginForm from '../components/LoginForm.vue'
+
 // 主界面
 import MainLayout from '../components/MainLayout.vue'
 
@@ -9,6 +12,7 @@ import RoleManage from '../components/UserManage/RoleManage.vue'
 
 //生产计划里面的组件
 import Order from '../components/ProductionPlan/Order.vue'
+
 
 import Dispatch from '../views/ProductionPlan/Dispatch.vue'
 import PlanGantt from '../views/ProductionPlan/PlanGantt.vue'
@@ -26,7 +30,7 @@ import Trend from '../views/DataDashboard/Trend.vue'
 import DeptCompare from '../views/DataDashboard/DeptCompare.vue'
 
 import Settings from '../views/Main/Settings.vue'
-import LoginForm from '../components/LoginForm.vue'
+
 
 const routes = [
   {
