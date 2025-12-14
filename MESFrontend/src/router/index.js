@@ -1,3 +1,4 @@
+// Updated upstream
 import { createRouter, createWebHistory } from 'vue-router'
 //登录页面
 import LoginForm from '../components/LoginForm.vue'
@@ -13,9 +14,10 @@ import UserManage from '../components/UserManage/UserManage.vue'
 import PermissionManage from '../components/UserManage/PermissionManage.vue'
 import RoleManage from '../components/UserManage/RoleManage.vue'
 
-//生产计划里面的组件
+//生产计划里面的组件../components/ProductionPlan/Dispatch.vue
 import Order from '../components/ProductionPlan/Order.vue'
-import Dispatch from '../components/ProductionPlan/Dispatch.vue'
+import Dispatch from '../views/ProductionPlan/Dispatch.vue'
+//import WorkOrderScheduling from '../views/ProductionPlan/WorkOrderScheduling.vue'
 import PlanGantt from '../components/ProductionPlan/PlanGantt.vue'
 
 //未完成的组件
@@ -55,6 +57,7 @@ const routes = [
       // 生产计划中的组件
       { path: 'Order', name: 'Order', component: Order },
       { path: 'Dispatch', name: 'Dispatch', component: Dispatch },
+      //{ path: 'workorderScheduling', name: 'workorderScheduling', component: workorderScheduling },
       { path: 'PlanGantt', name: 'PlanGantt', component: PlanGantt },
       //未完成的组件
       { path: 'Report', name: 'Report', component: Report },
@@ -105,3 +108,48 @@ router.beforeEach((to, from, next) => {
 
 export default router
 
+
+// // src/router/index.js
+// import { createRouter, createWebHistory } from 'vue-router'
+// import MainLayout from '../components/MainLayout.vue'
+// import Dispatch from '../views/ProductionPlan/Dispatch.vue'
+// import WorkOrderScheduling from '../views/ProductionPlan/WorkOrderScheduling.vue'
+
+
+// // 定义路由规则：默认加载 Dispatch 页面
+// const routes = [
+//     // 主布局（包含导航栏）- 父路由
+//   {
+//     path: '/',
+//     name: 'MainLayout',
+//     component: MainLayout,
+//     redirect: '/workorderScheduling', // 默认重定向
+//     children: [
+//       // WorkOrderScheduling
+//       {
+//         path: 'workorderScheduling',
+//         name: 'workorderScheduling',
+//         component: WorkOrderScheduling,
+//         meta: { title: '生产计划 / 工单排程' } // 面包屑标题
+//       },
+//       // Dispatch作为默认子路由
+//       {
+//         path: 'Dispatch',
+//         name: 'Dispatch',
+//         component: Dispatch,
+//         meta: { title: '生产计划 / 工单管理' } // 面包屑标题
+//       }
+//       // ... 其他子路由（生产执行、质量管理等）
+//     ]
+//   }
+// ]
+
+// // 创建路由实例
+// const router = createRouter({
+//   history: createWebHistory(import.meta.env.BASE_URL),
+//   routes
+// })
+
+// // 默认导出router（匹配main.js的导入方式）
+// export default router
+// // Stashed changes

@@ -243,6 +243,7 @@ export default {
         children: [
           { name: "订单管理", route: "Order", icon: Document },
           { name: "工单管理", route: "Dispatch", icon: List },
+          { name: "工单排程", route: "workorderScheduling", icon: List },
           { name: "计划甘特图", route: "PlanGantt", icon: Calendar }
         ]
       },

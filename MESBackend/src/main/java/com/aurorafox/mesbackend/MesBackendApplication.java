@@ -1,4 +1,4 @@
-package com.aurorafox.mesbackend;
+package MESBackend.src.main.java.com.aurorafox.mesbackend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
