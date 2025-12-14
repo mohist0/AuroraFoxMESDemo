@@ -18,6 +18,7 @@ public class RolePermission {
 
     /** 数据编号，主键 */
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "rp_id")
     private String rpId;
 

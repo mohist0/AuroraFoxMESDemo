@@ -107,7 +107,7 @@ DROP TABLE IF EXISTS role_permission;
 CREATE TABLE role_permission
 (
     -- 数据编号，主键
-    rp_id         VARCHAR(50) PRIMARY KEY COMMENT '数据编号',
+    rp_id         BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '数据编号',
 
     -- 角色编号，外键关联 roles.role_id
     role_id       VARCHAR(50) NOT NULL COMMENT '角色编号',
