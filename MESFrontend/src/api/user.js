@@ -1,6 +1,6 @@
 // src/api/user.js
 //用户管理api
-import request from "@/utils/axios";
+import request from "@/api/axios";
 
 // 获取全部用户（GET）
 export const getAllUsers = () => request.get("/user/getAllUsers");

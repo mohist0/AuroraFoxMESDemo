@@ -1,4 +1,4 @@
-import request from "../utils/axios";
+import request from "@/api/axios";
 
 export const login = (data) => {
     return request.post("/auth/login", data);

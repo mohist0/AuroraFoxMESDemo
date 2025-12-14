@@ -1,107 +1,63 @@
-// import { createRouter, createWebHistory } from 'vue-router'
-// //登录页面
-// import LoginForm from '../components/LoginForm.vue'
+import { createRouter, createWebHistory } from 'vue-router'; // 引入Vue Router创建函数
+import { useUserStore } from '@/stores/index.js'; // 使用命名导入
 
-// //退出登录
-// import Layout from '../components/Layout.vue'
+// 导入各个组件
+import Home from '@/views/Main/Home.vue'; // 主页组件
+import UserManage from '@/views/User-Manage/UserManage.vue'; // 用户管理组件
+import Login from '@/views/Main/Login.vue'; // 登录组件
 
-// // 主界面
-// import MainLayout from '../components/MainLayout.vue'
+const routes = [
+  {
+    path: '/', // 路径为根路径
+    name: 'Home', // 路由名称为Home
+    component: Home, // 使用Home组件
+    meta: { requiresAuth: true }, // 需要认证的路由
+    children: [
+      {
+        path: 'user-manage', // 子路径为user-manage
+        name: 'UserManage', // 子路由名称为UserManage
+        component: UserManage, // 使用UserManage组件
+        meta: { requiresAuth: true }, // 子路由也需要认证
+      },
+      // 可以在这里添加更多子路由
+    ]
+  },
+  {
+    path: '/login', // 路径为/login
+    name: 'Login', // 路由名称为Login
+    component: Login, // 使用Login组件
+    meta: { requiresAuth: false } // 登录页面不需要认证
+  },
+  // 可以在这里添加更多顶级路由
+];
 
-// // 个人中心里的组件
-// import UserManage from '../components/UserManage/UserManage.vue'
-// import PermissionManage from '../components/UserManage/PermissionManage.vue'
-// import RoleManage from '../components/UserManage/RoleManage.vue'
+// 创建路由实例
+const router = createRouter({
+  history: createWebHistory(), // 使用HTML5 History模式
+  routes // 使用定义的路由配置
+});
 
-// //生产计划里面的组件
-// import Order from '../components/ProductionPlan/Order.vue'
-// import Dispatch from '../components/ProductionPlan/Dispatch.vue'
-// import PlanGantt from '../components/ProductionPlan/PlanGantt.vue'
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  const store = useUserStore(); // 创建useUserStore实例
+  const isAuthenticated = store.token !== ""; // 检测用户是否已登录
 
-// //未完成的组件
-// import Report from '../views/ProductionExecution/Report.vue'
-// import Notice from '../views/ProductionExecution/Notice.vue'
-// import Abnormal from '../views/ProductionExecution/Abnormal.vue'
-// import QualityInput from '../views/QualityManagement/QualityInput.vue'
-// import Trace from '../views/QualityManagement/Trace.vue'
-// import Defect from '../views/QualityManagement/Defect.vue'
-// import EQPState from '../views/DeviceManagement/EQPState.vue'
-// import Maintain from '../views/DeviceManagement/Maintain.vue'
-// import EQPBook from '../views/DeviceManagement/EQPBook.vue'
-// import Dashboard from '../views/DataDashboard/Dashboard.vue'
-// import Trend from '../views/DataDashboard/Trend.vue'
-// import DeptCompare from '../views/DataDashboard/DeptCompare.vue'
+  // 判断当前路由是否需要认证
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!isAuthenticated) {
+      // 如果未认证，重定向到登录页面，并保存当前路径以便登录后重定向回来
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      });
+    } else {
+      // 如果已认证，继续导航
+      next();
+    }
+  } else {
+    // 如果不需要认证，继续导航
+    next();
+  }
+});
 
-
-// const routes = [
-//   {
-//     path: '/login',
-//     name: 'Login',
-//     component: LoginForm,
-//     meta: { isPublic: true } // 标记为公开路由
-//   },
-//   {
-//     path: '/layout',
-//     name: 'Layout',
-//     component: Layout,
-//   },
-//   {
-//     path: '/',
-//     component: MainLayout,
-//     meta: { requiresAuth: true }, // 需要登录
-//     redirect: '/order',
-//      children: [
-//       { path: '', name: 'Home', component: null },
-//       // 生产计划中的组件
-//       { path: 'Order', name: 'Order', component: Order },
-//       { path: 'Dispatch', name: 'Dispatch', component: Dispatch },
-//       { path: 'PlanGantt', name: 'PlanGantt', component: PlanGantt },
-//       //未完成的组件
-//       { path: 'Report', name: 'Report', component: Report },
-//       { path: 'Notice', name: 'Notice', component: Notice },
-//       { path: 'Abnormal', name: 'Abnormal', component: Abnormal },
-//       { path: 'QualityInput', name: 'QualityInput', component: QualityInput },
-//       { path: 'Trace', name: 'Trace', component: Trace },
-//       { path: 'Defect', name: 'Defect', component: Defect },
-//       { path: 'EQPState', name: 'EQPState', component: EQPState },
-//       { path: 'Maintain', name: 'Maintain', component: Maintain },
-//       { path: 'EQPBook', name: 'EQPBook', component: EQPBook },
-//       { path: 'Dashboard', name: 'Dashboard', component: Dashboard },
-//       { path: 'Trend', name: 'Trend', component: Trend },
-//       { path: 'DeptCompare', name: 'DeptCompare', component: DeptCompare },
-//       //系统管理的组件
-//       { path: 'UserManage', name: 'UserManage', component: UserManage },
-//       { path: 'RoleManage', name: 'RoleManage', component: RoleManage },
-//       { path: 'PermissionManage', name: 'PermissionManage', component: PermissionManage },
-//     ]
-//   },
-//   {
-//     path: '/:pathMatch(.*)*', // 404 处理
-//     redirect: '/login'
-//   }
-// ]
-
-// const router = createRouter({
-//   history: createWebHistory(),
-//   routes
-// })
-
-// // 路由守卫
-// router.beforeEach((to, from, next) => {
-//   const token = localStorage.getItem('token')
-  
-//   // 已登录但访问登录页，跳转到首页
-//   if (to.name === 'Login' && token) {
-//     return next('/')
-//   }
-  
-//   // 需要登录但未登录，跳转到登录页
-//   if (to.meta.requiresAuth && !token) {
-//     return next({ name: 'Login', query: { redirect: to.fullPath } })
-//   }
-  
-//   next()
-// })
-
-// export default router
-
+export default router; // 导出路由实例
