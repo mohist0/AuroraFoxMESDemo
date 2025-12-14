@@ -32,7 +32,7 @@
 
 <script setup>
 import { reactive, ref } from "vue"
-import { useUserStore } from "../stores/user"
+import { useUserStore } from "../../stores"
 import { useRouter, useRoute } from "vue-router"
 
 const router = useRouter()
