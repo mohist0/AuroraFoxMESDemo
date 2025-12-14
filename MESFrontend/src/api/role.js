@@ -1,4 +1,4 @@
-import request from "../utils/request";
+import request from "@/api/request";
 
 /* ===========================
    角色（Role）相关接口

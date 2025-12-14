@@ -4,6 +4,9 @@ import { useUserStore } from '@/stores/index.js'; // 使用命名导入
 // 导入各个组件
 import Home from '@/views/Main/Home.vue'; // 主页组件
 import UserManage from '@/views/User-Manage/UserManage.vue'; // 用户管理组件
+import RoleManage from '@/views/User-Manage/RoleManage.vue'; // 角色管理组件
+import PermissionManage from '@/views/User-Manage/PermissionManage.vue';
+import Order from '@/views/Production-Plan/Order.vue'; // 订单管理组件
 import Login from '@/views/Main/Login.vue'; // 登录组件
 
 const routes = [
@@ -13,13 +16,34 @@ const routes = [
     component: Home, // 使用Home组件
     meta: { requiresAuth: true }, // 需要认证的路由
     children: [
+      // 用户管理-UserManage-路由
       {
         path: 'user-manage', // 子路径为user-manage
         name: 'UserManage', // 子路由名称为UserManage
         component: UserManage, // 使用UserManage组件
         meta: { requiresAuth: true }, // 子路由也需要认证
       },
-      // 可以在这里添加更多子路由
+      // 角色管理-RoleManage-路由
+      {
+        path: 'role-manage', // 子路径为role-manage
+        name: 'RoleManage', // 子路由名称为RoleManage
+        component: RoleManage, // 使用RoleManage组件
+        meta: { requiresAuth: true }, // 子路由也需要认证
+      },
+      // 权限管理-PermissionManage-路由
+      {
+        path: 'permission-manage', // 子路径为permission-manage
+        name: 'PermissionManage', // 子路由名称为PermissionManage
+        component: PermissionManage, // 使用PermissionManage组件
+        meta: { requiresAuth: true }, // 子路由也需要认证
+      },
+      // 订单管理-Order-路由
+      {
+        path: 'order', // 子路径为order
+        name: 'Order', // 子路由名称为Order
+        component: Order, // 使用Order组件
+        meta: { requiresAuth: true }, // 子路由也需要认证
+      },
     ]
   },
   {
@@ -28,7 +52,6 @@ const routes = [
     component: Login, // 使用Login组件
     meta: { requiresAuth: false } // 登录页面不需要认证
   },
-  // 可以在这里添加更多顶级路由
 ];
 
 // 创建路由实例

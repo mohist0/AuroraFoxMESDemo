@@ -1,4 +1,4 @@
-import request from "../utils/request";
+import request from "@/api/request.js";
 
 // 获取全部权限
 export function getPermissionList() {
